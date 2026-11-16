@@ -220,19 +220,30 @@
       document.getElementById('dropdownArrow').classList.remove('rotate-180');
     }
 
+    function cleanString(str) {
+      if (!str) return '';
+      return str.toString().toLowerCase().replace(/\s+/g, ' ').trim();
+    }
+
+    // Input එකට Focus වූ විට අදාළ අකුරු වලට ගැළපෙන ඒවා පමණක් පෙන්වීම
     function onInputFocus() {
       const inputVal = document.getElementById('farmerNameInput').value;
-      if (inputVal.trim() === '') {
-        renderDropdownOptions(sortedFarmerNames);
-      }
+      const filteredNames = sortedFarmerNames.filter(name => 
+        cleanString(name).includes(cleanString(inputVal))
+      );
+      renderDropdownOptions(filteredNames);
       showDropdown();
     }
 
+    // Dropdown Arrow එක ක්ලික් කළ විට
     function toggleDropdown() {
       const dropdown = document.getElementById('customDropdown');
       if (dropdown.classList.contains('hidden')) {
-        // ඊතලය ක්ලික් කළ විට සම්පූර්ණ ලැයිස්තුවම පෙන්වයි
-        renderDropdownOptions(sortedFarmerNames);
+        const inputVal = document.getElementById('farmerNameInput').value;
+        const filteredNames = sortedFarmerNames.filter(name => 
+          cleanString(name).includes(cleanString(inputVal))
+        );
+        renderDropdownOptions(filteredNames);
         showDropdown();
         document.getElementById('farmerNameInput').focus();
       } else {
@@ -248,11 +259,7 @@
       }
     });
 
-    function cleanString(str) {
-      if (!str) return '';
-      return str.toString().toLowerCase().replace(/\s+/g, ' ').trim();
-    }
-
+    // නම ටයිප් කරන විට ක්‍රියාත්මක වන කොටස (Real-time Filtering)
     function onFarmerNameInput() {
       const inputVal = document.getElementById('farmerNameInput').value;
       showDropdown();
@@ -260,6 +267,7 @@
       const filteredNames = sortedFarmerNames.filter(name => 
         cleanString(name).includes(cleanString(inputVal))
       );
+      
       renderDropdownOptions(filteredNames);
 
       if (inputVal.trim() !== "") {
