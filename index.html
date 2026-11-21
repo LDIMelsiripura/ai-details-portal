@@ -4,240 +4,276 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>කෘත්‍රිම සිංචන තොරතුරු-ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය | AI Data Portal</title>
-  
-  <!-- Tailwind CSS - Open Source UI Framework -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  
   <style>
-    /* සිංහල Fonts සහ තද කොළ පාට පසුබිම් Gradient සඳහා */
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Noto Sans Sinhala'; 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Noto Sans Sinhala';
       background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 45%, #6ee7b7 100%);
       background-attachment: fixed;
     }
 
-    /* ඉහළ Header කොටස - පහළට වඩා තද හා වර්ණවත් Gradient + Animated Shine */
     .rich-header {
       background: linear-gradient(120deg, #022c22 0%, #064e3b 35%, #047857 72%, #0f766e 100%);
       position: relative;
       overflow: hidden;
       border-bottom: 3px solid #10b981;
-      box-shadow: 0 12px 30px -6px rgba(2, 44, 34, 0.55), 0 4px 12px -2px rgba(4, 120, 87, 0.35);
+      box-shadow: 0 12px 30px -6px rgba(2, 44, 34, 0.55);
     }
 
-    .rich-header::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 18% 50%, rgba(52, 211, 153, 0.24) 0%, transparent 45%),
-                  radial-gradient(circle at 82% 30%, rgba(45, 212, 191, 0.22) 0%, transparent 50%);
-      animation: headerGlowShift 8s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-
-    .rich-header::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -130%;
-      width: 65%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(167, 243, 208, 0.18), transparent);
-      transform: skewX(-22deg);
-      animation: headerSheen 5.5s infinite ease-in-out;
-      pointer-events: none;
-    }
-
-    @keyframes headerGlowShift {
-      0% { opacity: 0.75; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.05); }
-    }
-
-    @keyframes headerSheen {
-      0%, 62% { left: -130%; }
-      100% { left: 160%; }
-    }
-
-    /* Card Entrance & Hover Animations */
-    @keyframes cardEnter {
-      0% {
-        opacity: 0;
-        transform: translateY(22px) scale(0.985);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .data-card { 
-      animation: cardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; 
-      border-left: 6px solid #065f46;
-    }
-
-    .data-card:hover { 
-      transform: translateY(-6px) scale(1.005); 
-      border-left-color: #059669;
-      box-shadow: 0 22px 32px -8px rgba(6, 78, 59, 0.28), 0 10px 14px -6px rgba(5, 150, 105, 0.18); 
-    }
-
-    /* Search Box එක සඳහා වන Deep Emerald Gradient සහ Animations */
     .animated-search-box {
       background: linear-gradient(135deg, #ecfdf5 0%, #bbf7d0 58%, #99f6e4 100%);
       border: 2px solid #34d399;
       position: relative;
-      overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      overflow: visible; /* Dropdown එක කැපී නොයා පෙනීමට visible තබන්න */
     }
 
-    .animated-search-box::before {
-      content: '';
-      position: absolute;
-      top: -60%;
-      left: -60%;
-      width: 220%;
-      height: 220%;
-      background: radial-gradient(circle, rgba(5, 150, 105, 0.18) 0%, rgba(13, 148, 136, 0.09) 42%, transparent 72%);
-      animation: pulseGlow 9s infinite linear;
-      pointer-events: none;
+    .dropdown-menu {
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 999;
     }
 
-    .animated-search-box::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.5) 50%, transparent 75%);
-      transform: translateX(-120%);
-      animation: lightSweep 6.5s infinite ease-in-out;
-      pointer-events: none;
-    }
-
-    @keyframes pulseGlow {
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.12); }
-      100% { transform: rotate(360deg) scale(1); }
-    }
-
-    @keyframes lightSweep {
-      0%, 65% { transform: translateX(-120%); }
-      100% { transform: translateX(120%); }
-    }
-
-    .animated-search-box:hover {
-      border-color: #059669;
-      box-shadow: 0 20px 35px -8px rgba(6, 95, 70, 0.32);
-      transform: translateY(-2px);
-    }
-
-    /* Floating & Gentle Pulse Animations */
-    @keyframes floatSlow {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-7px); }
-    }
-
-    .animate-float-slow {
-      animation: floatSlow 3.4s ease-in-out infinite;
-    }
-
-    /* Input Focus Lift */
-    .emerald-input {
-      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .emerald-input:focus {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px -6px rgba(6, 95, 70, 0.38);
-    }
-
-    /* Loader Animation */
-    .loader { 
-      border-top-color: #065f46; 
-      border-right-color: #059669;
-      -webkit-animation: spinner 1.05s linear infinite; 
-      animation: spinner 1.05s linear infinite; 
-    }
-    @-webkit-keyframes spinner { 
-      0% { -webkit-transform: rotate(0deg); } 
-      100% { -webkit-transform: rotate(360deg); } 
-    }
-    @keyframes spinner { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(360deg); } 
+    .dropdown-item:hover {
+      background-color: #d1fae5;
     }
   </style>
 </head>
 <body class="min-h-screen text-gray-800 flex flex-col">
 
-  <!-- Rich Deep Green Header Section -->
-  <header class="rich-header text-white p-4 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
-      
-      <!-- Logo and Title -->
+  <header class="rich-header text-white p-4 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-400/20 p-2.5 rounded-xl backdrop-blur-md border border-emerald-300/45 shadow-lg animate-float-slow">
+        <div class="bg-emerald-400/20 p-2.5 rounded-xl border border-emerald-300/45">
           <img src="https://img.icons8.com/color/48/cow.png" alt="Cow Icon" class="w-9 h-9">
         </div>
         <div>
           <span class="inline-block text-xs uppercase tracking-wider font-bold text-emerald-200 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-400/30 mb-1">
             Ibbagamuwa Veterinary Office
           </span>
-          <h1 class="text-lg md:text-xl font-extrabold tracking-wide text-white drop-shadow">
+          <h1 class="text-lg md:text-xl font-extrabold tracking-wide text-white">
             කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය
           </h1>
         </div>
       </div>
 
-      <!-- Navigation Menu Links -->
-      <nav class="flex items-center gap-2 bg-emerald-950/55 p-1.5 rounded-xl backdrop-blur-md border border-emerald-300/30 shadow-inner">
-        <a href="index.html" class="bg-gradient-to-r from-emerald-300 to-teal-200 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-sm transition duration-300 shadow-md hover:from-white hover:to-emerald-100">කෘත්‍රිම සිංචන දත්ත</a>
-        <a href="report.html" class="text-emerald-100 hover:bg-emerald-700/70 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-300">Melsiripura LDI දත්ත</a>
+      <nav class="flex items-center gap-2 bg-emerald-950/55 p-1.5 rounded-xl border border-emerald-300/30">
+        <a href="index.html" class="bg-gradient-to-r from-emerald-300 to-teal-200 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-sm">කෘත්‍රිම සිංචන දත්ත</a>
+        <a href="report.html" class="text-emerald-100 hover:bg-emerald-700/70 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm">Melsiripura LDI දත්ත</a>
       </nav>
-
     </div>
   </header>
 
-  <!-- Main Content Area -->
   <main class="max-w-7xl mx-auto p-6 flex-grow w-full">
-    
-    <!-- Animated Deep Green Search Section -->
     <div class="animated-search-box p-6 md:p-8 rounded-3xl shadow-xl mb-8">
-      <h2 class="text-lg md:text-xl font-extrabold text-emerald-950 mb-6 flex items-center gap-3 relative z-10">
-        <div class="p-2.5 bg-gradient-to-br from-emerald-700 to-teal-800 text-white rounded-xl shadow-md shadow-emerald-900/30 animate-bounce">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <h2 class="text-lg md:text-xl font-extrabold text-emerald-950 mb-6 flex items-center gap-3">
+        <div class="p-2.5 bg-gradient-to-br from-emerald-700 to-teal-800 text-white rounded-xl shadow-md">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
         </div>
         ගොවිපල අංකය හෝ ගොවිමහතාගේ නම සෘජුවම ටයිප් කරන්න
       </h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 relative z-10">
-        <!-- Farm ID Input with Datalist -->
-        <div>
-          <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිපල අංකය (Farm ID - 6130...):</label>
-          <input type="text" id="farmIdInput" list="farmIdOptions" placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..." oninput="onFarmIdInput()" class="emerald-input w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
-          <datalist id="farmIdOptions">
-            <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
-          </datalist>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+        <!-- Farm ID Custom Dropdown -->
+        <div class="relative">
+          <label for="farmIdInput" class="block text-sm font-bold text-emerald-950 mb-2">
+            ගොවිපල අංකය (Farm ID - 6130...):
+          </label>
+          <input
+            type="text"
+            id="farmIdInput"
+            placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..."
+            oninput="onFarmIdInput()"
+            onfocus="showFarmIdDropdown()"
+            class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
+            autocomplete="off"
+          >
+          <div id="farmIdDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl"></div>
         </div>
 
-        <!-- Farmer Name Input with Datalist -->
-        <div>
-          <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිමහතාගේ නම (Farmer Name):</label>
-          <input type="text" id="farmerNameInput" list="farmerNameOptions" placeholder="නම ටයිප් කරන්න..." oninput="onFarmerNameInput()" class="emerald-input w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
-          <datalist id="farmerNameOptions">
-            <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
-          </datalist>
+        <!-- Farmer Name Custom Dropdown -->
+        <div class="relative">
+          <label for="farmerNameInput" class="block text-sm font-bold text-emerald-950 mb-2">
+            ගොවිමහතාගේ නම (Farmer Name):
+          </label>
+          <input
+            type="text"
+            id="farmerNameInput"
+            placeholder="නම ටයිප් කරන්න..."
+            oninput="onFarmerNameInput()"
+            onfocus="showFarmerNameDropdown()"
+            class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
+            autocomplete="off"
+          >
+          <div id="farmerNameDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl"></div>
         </div>
       </div>
 
-      <!-- Reset / Clear Button -->
-      <div class="flex justify-end relative z-10">
-        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md shadow-emerald-900/30 border border-emerald-500/40 flex items-center gap-2 transform hover:-translate-y-0.5 active:scale-95">
-          <svg class="w-4 h-4 text-emerald-200 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <div class="flex justify-end">
+        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md flex items-center gap-2">
           නැවත සකසන්න (Reset)
         </button>
       </div>
     </div>
 
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-emerald-900">
-      <div class="loader ease-linear rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4 shadow-md"></div>
-      <p class="font-semibold animate-pulse">දත්ත පූරණය වෙමින් පවතී, කරුණාක
+    <!-- Results Container -->
+    <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <script>
+    // උදාහරණ දත්ත (ඔබේ Google Sheet / API / JSON දත්ත මෙතැනට පූරණය කරන්න)
+    let aiRecords = [
+      { farmId: "613001", farmerName: "සුනිල් ජයසිංහ", village: "ඉබ්බාගමුව", aiDate: "2026-10-12", bull: "Friesian" },
+      { farmId: "613002", farmerName: "කමලා රත්නායක", village: "මැල්සිරිපුර", aiDate: "2026-10-18", bull: "Jersey" },
+      { farmId: "613003", farmerName: "නිමල් විජේසේකර", village: "ගොකරැල්ල", aiDate: "2026-11-02", bull: "Ayrshire" },
+      { farmId: "613004", farmerName: "අජිත් පෙරේරා", village: "ඉබ්බාගමුව", aiDate: "2026-11-10", bull: "Sahiwal" }
+    ];
+
+    const farmIdInput = document.getElementById("farmIdInput");
+    const farmerNameInput = document.getElementById("farmerNameInput");
+    const farmIdDropdown = document.getElementById("farmIdDropdown");
+    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
+    const resultsContainer = document.getElementById("resultsContainer");
+
+    function renderFarmIdOptions(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const uniqueIds = [...new Set(aiRecords.map(item => item.farmId))];
+      const matches = uniqueIds.filter(id => id.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන ගොවිපල අංකයක් හමු නොවීය</div>`;
+      } else {
+        farmIdDropdown.innerHTML = matches.map(id => {
+          const record = aiRecords.find(r => r.farmId === id);
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center"
+                 onclick="selectFarmId('${id}')">
+              <span class="font-bold text-emerald-950">${id}</span>
+              <span class="text-xs text-emerald-700">${record ? record.farmerName : ''}</span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmIdDropdown.classList.remove("hidden");
+    }
+
+    function renderFarmerNameOptions(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const uniqueNames = [...new Set(aiRecords.map(item => item.farmerName))];
+      const matches = uniqueNames.filter(name => name.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන නමක් හමු නොවීය</div>`;
+      } else {
+        farmerNameDropdown.innerHTML = matches.map(name => {
+          const record = aiRecords.find(r => r.farmerName === name);
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center"
+                 onclick="selectFarmerName('${name.replace(/'/g, "\\'")}')">
+              <span class="font-bold text-emerald-950">${name}</span>
+              <span class="text-xs text-emerald-700">Farm ID: ${record ? record.farmId : ''}</span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmerNameDropdown.classList.remove("hidden");
+    }
+
+    function showFarmIdDropdown() {
+      renderFarmIdOptions(farmIdInput.value);
+      farmerNameDropdown.classList.add("hidden");
+    }
+
+    function showFarmerNameDropdown() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      farmIdDropdown.classList.add("hidden");
+    }
+
+    function selectFarmId(id) {
+      farmIdInput.value = id;
+      const found = aiRecords.find(r => r.farmId === id);
+      if (found) {
+        farmerNameInput.value = found.farmerName;
+      }
+      farmIdDropdown.classList.add("hidden");
+      filterResults();
+    }
+
+    function selectFarmerName(name) {
+      farmerNameInput.value = name;
+      const found = aiRecords.find(r => r.farmerName === name);
+      if (found) {
+        farmIdInput.value = found.farmId;
+      }
+      farmerNameDropdown.classList.add("hidden");
+      filterResults();
+    }
+
+    function onFarmIdInput() {
+      renderFarmIdOptions(farmIdInput.value);
+      filterResults();
+    }
+
+    function onFarmerNameInput() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      filterResults();
+    }
+
+    function filterResults() {
+      const idQuery = farmIdInput.value.trim().toLowerCase();
+      const nameQuery = farmerNameInput.value.trim().toLowerCase();
+
+      const filtered = aiRecords.filter(item => {
+        const matchesId = !idQuery || item.farmId.toLowerCase().includes(idQuery);
+        const matchesName = !nameQuery || item.farmerName.toLowerCase().includes(nameQuery);
+        return matchesId && matchesName;
+      });
+
+      renderCards(filtered);
+    }
+
+    function renderCards(data) {
+      if (!data.length) {
+        resultsContainer.innerHTML = `
+          <div class="col-span-full bg-white/90 p-6 rounded-2xl text-center text-emerald-900 font-semibold shadow">
+            සෙවුමට ගැලපෙන කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = data.map(item => `
+        <div class="bg-white p-5 rounded-2xl shadow border-l-4 border-emerald-700">
+          <div class="text-xs font-bold text-emerald-700 mb-1">Farm ID: ${item.farmId}</div>
+          <h3 class="text-lg font-extrabold text-emerald-950 mb-2">${item.farmerName}</h3>
+          <p class="text-sm text-gray-700"><strong>ගම:</strong> ${item.village}</p>
+          <p class="text-sm text-gray-700"><strong>සිංචන දිනය:</strong> ${item.aiDate}</p>
+          <p class="text-sm text-gray-700"><strong>ගව වර්ගය:</strong> ${item.bull}</p>
+        </div>
+      `).join("");
+    }
+
+    function resetSearch() {
+      farmIdInput.value = "";
+      farmerNameInput.value = "";
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      renderCards(aiRecords);
+    }
+
+    // Input වලින් පිටත click කළ විට dropdown වසා දැමීම
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#farmIdInput") && !e.target.closest("#farmIdDropdown")) {
+        farmIdDropdown.classList.add("hidden");
+      }
+      if (!e.target.closest("#farmerNameInput") && !e.target.closest("#farmerNameDropdown")) {
+        farmerNameDropdown.classList.add("hidden");
+      }
+    });
+
+    // ආරම්භයේදී දත්ත පෙන්වීම
+    renderCards(aiRecords);
+  </script>
+</body>
+</html>
