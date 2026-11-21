@@ -141,7 +141,7 @@
     <!-- Loading Indicator -->
     <div id="loadingIndicator" class="flex flex-col items-center justify-center p-12 text-emerald-900">
       <div class="loader rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4"></div>
-      <p class="font-semibold">Google Sheet වෙතින් සියලු ගොවිපල දත්ත පූරණය වෙමින් පවතී...</p>
+      <p class="font-semibold">Google Sheet සහ Drive වෙතින් දත්ත පූරණය වෙමින් පවතී...</p>
     </div>
 
     <!-- Error Message Box -->
@@ -154,7 +154,10 @@
   <script>
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP84tFeQVUdQPPNKClWWMrsaUDq5dbDwVfj20Fsc1Velr7DDOV2rRX3fxBggu6_uByW8byTV4jsDCV/pub?output=csv";
 
-    // පෙන්වීමට අනවශ්‍ය තීරු (Columns)
+    // Google Apps Script Web App URL (Drive Folder Photos)
+    const DRIVE_PHOTOS_API_URL = "https://script.google.com/macros/s/AKfycbyssRNU8t14bzJUGs6d7Pgg6UgT8QT9qRKULV40zTBZxi6ddzy-UHBg9g2dVTlFg0d7/exec";
+
+    // පෙන්වීමට අනවශ්‍ය තීරු
     const HIDDEN_COLUMNS = [
       "year",
       "month",
@@ -164,6 +167,9 @@
       "farmer name",
       "contact no",
       "contact number",
+      "address",
+      "photo",
+      "image",
       "calving month",
       "total no of animals",
       "total daily mp",
@@ -172,14 +178,15 @@
       "next heat"
     ];
 
-    // පෙන්වීමට අනවශ්‍ය අගයන්
     const IGNORED_VALUES = ["", "-", "n/a", "na", "null", "undefined"];
 
     let aiRecords = [];
+    let drivePhotoMap = {};
     let farmIdKey = "";
     let farmerNameKey = "";
     let contactNoKey = "";
     let addressKey = "";
+    let photoKey = "";
     let aiDateKey = "";
 
     const farmIdInput = document.getElementById("farmIdInput");
@@ -212,6 +219,10 @@
       addressKey =
         headers.find(h => /address|ලිපිනය/i.test(h)) || "";
 
+      photoKey =
+        headers.find(h => /^(photo|image|img|picture|ඡායාරූප|රූපය)$/i.test(h.trim())) ||
+        headers.find(h => /photo|image|picture|ඡායාරූප|රූප/i.test(h)) || "";
+
       aiDateKey =
         headers.find(h => /ai\s*date|date|දිනය/i.test(h)) || "";
     }
@@ -232,6 +243,31 @@
       return String(addressKey ? (record[addressKey] || "") : "").trim();
     }
 
+    function getPhotoRaw(record) {
+      return String(photoKey ? (record[photoKey] || "") : "").trim();
+    }
+
+    function buildPhotoUrl(rawPhoto) {
+      if (!isMeaningfulValue(rawPhoto)) return "";
+      const val = rawPhoto.trim();
+
+      const fileNameOnly = val.split("/").pop().split("\\").pop().trim().toLowerCase();
+
+      if (drivePhotoMap[fileNameOnly]) {
+        return drivePhotoMap[fileNameOnly];
+      }
+
+      if (/^(https?:\/\/|data:image\/)/i.test(val)) {
+        const driveMatch = val.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (driveMatch && driveMatch[1]) {
+          return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w400`;
+        }
+        return val;
+      }
+
+      return "";
+    }
+
     function getAiDate(record) {
       return String(aiDateKey ? (record[aiDateKey] || "") : "").trim();
     }
@@ -242,6 +278,7 @@
       if (normalized === normalizeKey(farmerNameKey)) return true;
       if (normalized === normalizeKey(contactNoKey)) return true;
       if (normalized === normalizeKey(addressKey)) return true;
+      if (normalized === normalizeKey(photoKey)) return true;
       return HIDDEN_COLUMNS.some(hidden => normalizeKey(hidden) === normalized);
     }
 
@@ -257,6 +294,17 @@
       resultsContainer.innerHTML = "";
 
       try {
+        if (DRIVE_PHOTOS_API_URL) {
+          try {
+            const photoRes = await fetch(DRIVE_PHOTOS_API_URL);
+            if (photoRes.ok) {
+              drivePhotoMap = await photoRes.json();
+            }
+          } catch (photoErr) {
+            console.warn("Drive photos list load error:", photoErr);
+          }
+        }
+
         const cacheBusterUrl = `${DATA_URL}&t=${Date.now()}`;
         const response = await fetch(cacheBusterUrl);
 
@@ -490,6 +538,7 @@
             farmerName: fName,
             address: "",
             contactNo: "",
+            photoUrl: "",
             records: []
           };
         }
@@ -498,6 +547,9 @@
         }
         if (!grouped[key].contactNo && isMeaningfulValue(getContactNo(item))) {
           grouped[key].contactNo = getContactNo(item);
+        }
+        if (!grouped[key].photoUrl && isMeaningfulValue(getPhotoRaw(item))) {
+          grouped[key].photoUrl = buildPhotoUrl(getPhotoRaw(item));
         }
         grouped[key].records.push(item);
       });
@@ -535,28 +587,42 @@
           `;
         }).join("");
 
+        const photoHtml = group.photoUrl ? `
+          <div class="shrink-0">
+            <img
+              src="${escapeJsString(group.photoUrl)}"
+              alt="${escapeJsString(group.farmerName || "Photo")}"
+              class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-emerald-500 shadow-md bg-emerald-50"
+              onerror="this.parentElement.style.display='none';"
+            />
+          </div>
+        ` : "";
+
         return `
           <div class="bg-white p-6 md:p-7 rounded-3xl shadow-xl border-l-8 border-emerald-700">
-            <!-- ඉහළ Header කොටස: Farm ID, Farmer Name, Address සහ Contact no -->
+            <!-- ඉහළ Header කොටස: Photo, Farm ID, Farmer Name, Address සහ Contact no -->
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 pb-4 border-b-2 border-emerald-200">
-              <div class="space-y-1.5">
-                <div class="flex flex-wrap items-center gap-2">
-                  ${group.farmId ? `
-                    <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
-                      Farm ID: ${group.farmId}
-                    </span>
-                  ` : ""}
-                </div>
-                <h3 class="text-xl md:text-2xl font-extrabold text-emerald-950">
-                  ${group.farmerName || "නම සඳහන් කර නැත"}
-                </h3>
-                <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-emerald-900 pt-1">
-                  ${group.address ? `
-                    <div><span class="font-bold text-emerald-800">Address:</span> <span class="font-medium text-gray-800">${group.address}</span></div>
-                  ` : ""}
-                  ${group.contactNo ? `
-                    <div><span class="font-bold text-emerald-800">Contact no:</span> <span class="font-medium text-gray-800">${group.contactNo}</span></div>
-                  ` : ""}
+              <div class="flex items-start sm:items-center gap-4">
+                ${photoHtml}
+                <div class="space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-2">
+                    ${group.farmId ? `
+                      <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
+                        Farm ID: ${group.farmId}
+                      </span>
+                    ` : ""}
+                  </div>
+                  <h3 class="text-xl md:text-2xl font-extrabold text-emerald-950">
+                    ${group.farmerName || "නම සඳහන් කර නැත"}
+                  </h3>
+                  <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-emerald-900 pt-1">
+                    ${group.address ? `
+                      <div><span class="font-bold text-emerald-800">Address:</span> <span class="font-medium text-gray-800">${group.address}</span></div>
+                    ` : ""}
+                    ${group.contactNo ? `
+                      <div><span class="font-bold text-emerald-800">Contact no:</span> <span class="font-medium text-gray-800">${group.contactNo}</span></div>
+                    ` : ""}
+                  </div>
                 </div>
               </div>
 
