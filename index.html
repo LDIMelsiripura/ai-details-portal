@@ -141,7 +141,7 @@
     <!-- Loading Indicator -->
     <div id="loadingIndicator" class="flex flex-col items-center justify-center p-12 text-emerald-900">
       <div class="loader rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4"></div>
-      <p class="font-semibold">Google Sheet සහ Drive වෙතින් දත්ත පූරණය වෙමින් පවතී...</p>
+      <p class="font-semibold">Google Sheet සහ Drive (Melsiripura LDI_Images) වෙතින් දත්ත පූරණය වෙමින් පවතී...</p>
     </div>
 
     <!-- Error Message Box -->
@@ -154,6 +154,7 @@
   <script>
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP84tFeQVUdQPPNKClWWMrsaUDq5dbDwVfj20Fsc1Velr7DDOV2rRX3fxBggu6_uByW8byTV4jsDCV/pub?output=csv";
     const DRIVE_PHOTOS_API_URL = "https://script.google.com/macros/s/AKfycbyssRNU8t14bzJUGs6d7Pgg6UgT8QT9qRKULV40zTBZxi6ddzy-UHBg9g2dVTlFg0d7/exec";
+    const SUBFOLDER_NAME = "Melsiripura LDI_Images";
 
     const HIDDEN_COLUMNS = [
       "year",
@@ -266,15 +267,24 @@
       if (!isMeaningfulValue(rawPhoto)) return "";
       const val = rawPhoto.trim();
 
-      const fileNameOnly = val.split("/").pop().split("\\").pop().trim().toLowerCase();
+      const normalizedVal = val.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
+      const fileNameOnly = normalizedVal.split("/").pop().trim();
+      const withSubfolderKey = `${SUBFOLDER_NAME.toLowerCase()}/${fileNameOnly}`;
 
-      // Drive API map එකෙන් ගැලපෙන file එක සෙවීම
+      if (drivePhotoMap[normalizedVal]) {
+        return toDirectDriveImageUrl(drivePhotoMap[normalizedVal]);
+      }
+      if (drivePhotoMap[withSubfolderKey]) {
+        return toDirectDriveImageUrl(drivePhotoMap[withSubfolderKey]);
+      }
       if (drivePhotoMap[fileNameOnly]) {
         return toDirectDriveImageUrl(drivePhotoMap[fileNameOnly]);
       }
 
-      // සමහර විට file name එකේ කොටසක් පමණක් ගැලපේ නම්
-      const matchedKey = Object.keys(drivePhotoMap).find(k => k.toLowerCase() === fileNameOnly || k.toLowerCase().includes(fileNameOnly));
+      const matchedKey = Object.keys(drivePhotoMap).find(k => {
+        const lk = k.toLowerCase();
+        return lk === fileNameOnly || lk.endsWith("/" + fileNameOnly) || lk.includes(fileNameOnly);
+      });
       if (matchedKey) {
         return toDirectDriveImageUrl(drivePhotoMap[matchedKey]);
       }
@@ -616,7 +626,7 @@
               alt="${escapeJsString(group.farmerName || "Photo")}"
               referrerpolicy="no-referrer"
               class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-emerald-500 shadow-md bg-emerald-50"
-              onerror="if (!this.dataset.triedFallback) { this.dataset.triedFallback = '1'; const m = this.src.match(/\\/d\\/([a-zA-Z0-9_-]+)/); if (m) this.src = 'https://drive.google.com/uc?export=view&id=' + m[1]; else this.parentElement.style.display='none'; } else { this.parentElement.style.display='none'; }"
+              onerror="if (!this.dataset.triedFallback) { this.dataset.triedFallback = '1'; const m = this.src.match(/\\/d\\/([a-zA-Z0-9_-]+)/) || this.src.match(/\\/[d]\\/([a-zA-Z0-9_-]+)/) || this.src.match(/id=([a-zA-Z0-9_-]+)/); if (m) this.src = 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w400'; else this.parentElement.style.display='none'; } else { this.parentElement.style.display='none'; }"
             />
           </div>
         ` : "";
