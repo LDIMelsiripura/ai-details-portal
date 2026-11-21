@@ -153,11 +153,8 @@
 
   <script>
     const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP84tFeQVUdQPPNKClWWMrsaUDq5dbDwVfj20Fsc1Velr7DDOV2rRX3fxBggu6_uByW8byTV4jsDCV/pub?output=csv";
-
-    // Google Apps Script Web App URL (Drive Folder Photos)
     const DRIVE_PHOTOS_API_URL = "https://script.google.com/macros/s/AKfycbyssRNU8t14bzJUGs6d7Pgg6UgT8QT9qRKULV40zTBZxi6ddzy-UHBg9g2dVTlFg0d7/exec";
 
-    // පෙන්වීමට අනවශ්‍ය තීරු
     const HIDDEN_COLUMNS = [
       "year",
       "month",
@@ -200,6 +197,24 @@
 
     function normalizeKey(str) {
       return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function extractDriveId(urlOrId) {
+      if (!urlOrId) return "";
+      const str = String(urlOrId).trim();
+      const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match1 && match1[1]) return match1[1];
+      const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match2 && match2[1]) return match2[1];
+      return "";
+    }
+
+    function toDirectDriveImageUrl(urlOrId) {
+      const id = extractDriveId(urlOrId);
+      if (id) {
+        return `https://lh3.googleusercontent.com/d/${id}=w400`;
+      }
+      return String(urlOrId || "").trim();
     }
 
     function detectColumnKeys(headers) {
@@ -253,16 +268,19 @@
 
       const fileNameOnly = val.split("/").pop().split("\\").pop().trim().toLowerCase();
 
+      // Drive API map එකෙන් ගැලපෙන file එක සෙවීම
       if (drivePhotoMap[fileNameOnly]) {
-        return drivePhotoMap[fileNameOnly];
+        return toDirectDriveImageUrl(drivePhotoMap[fileNameOnly]);
+      }
+
+      // සමහර විට file name එකේ කොටසක් පමණක් ගැලපේ නම්
+      const matchedKey = Object.keys(drivePhotoMap).find(k => k.toLowerCase() === fileNameOnly || k.toLowerCase().includes(fileNameOnly));
+      if (matchedKey) {
+        return toDirectDriveImageUrl(drivePhotoMap[matchedKey]);
       }
 
       if (/^(https?:\/\/|data:image\/)/i.test(val)) {
-        const driveMatch = val.match(/\/d\/([a-zA-Z0-9_-]+)/);
-        if (driveMatch && driveMatch[1]) {
-          return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w400`;
-        }
-        return val;
+        return toDirectDriveImageUrl(val);
       }
 
       return "";
@@ -296,9 +314,13 @@
       try {
         if (DRIVE_PHOTOS_API_URL) {
           try {
-            const photoRes = await fetch(DRIVE_PHOTOS_API_URL);
+            const photoRes = await fetch(`${DRIVE_PHOTOS_API_URL}?t=${Date.now()}`);
             if (photoRes.ok) {
-              drivePhotoMap = await photoRes.json();
+              const rawMap = await photoRes.json();
+              drivePhotoMap = {};
+              Object.entries(rawMap || {}).forEach(([k, v]) => {
+                drivePhotoMap[String(k).trim().toLowerCase()] = v;
+              });
             }
           } catch (photoErr) {
             console.warn("Drive photos list load error:", photoErr);
@@ -592,8 +614,9 @@
             <img
               src="${escapeJsString(group.photoUrl)}"
               alt="${escapeJsString(group.farmerName || "Photo")}"
+              referrerpolicy="no-referrer"
               class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-emerald-500 shadow-md bg-emerald-50"
-              onerror="this.parentElement.style.display='none';"
+              onerror="if (!this.dataset.triedFallback) { this.dataset.triedFallback = '1'; const m = this.src.match(/\\/d\\/([a-zA-Z0-9_-]+)/); if (m) this.src = 'https://drive.google.com/uc?export=view&id=' + m[1]; else this.parentElement.style.display='none'; } else { this.parentElement.style.display='none'; }"
             />
           </div>
         ` : "";
@@ -626,7 +649,8 @@
                 </div>
               </div>
 
-              <div class="bg-emerald-900 text-white px-4 py-2 rounded-2xl text-sm font-extrabold shadow self-start lg:self-center">
+              <!-- අකුරු කළු පාට (text-black) කළ Badge එක -->
+              <div class="bg-emerald-200 text-black border border-emerald-500 px-4 py-2 rounded-2xl text-sm font-extrabold shadow self-start lg:self-center">
                 මුළු සිංචන වාර ගණන: ${sortedRecords.length}
               </div>
             </div>
