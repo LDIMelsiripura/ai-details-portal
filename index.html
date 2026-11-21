@@ -28,7 +28,7 @@
     }
 
     .dropdown-menu {
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
       z-index: 999;
     }
@@ -83,7 +83,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        ගොවිපල අංකය හෝ ගොවිමහතාගේ නම සෘජුවම ටයිප් කරන්න
+        ගොවිපල අංකය හෝ ගොවිමහතාගේ නම තෝරන්න / ටයිප් කරන්න
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -124,64 +124,41 @@
 
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div id="recordCountBadge" class="text-sm font-bold text-emerald-950 bg-white/80 px-4 py-2 rounded-xl border border-emerald-400">
-          මුළු වාර්තා ගණන: 0
+          මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: 0
         </div>
 
-        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md flex items-center gap-2">
-          නැවත සකසන්න (Reset)
-        </button>
+        <div class="flex items-center gap-3">
+          <button onclick="loadAllData()" class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-5 py-3 rounded-xl text-sm transition duration-300 shadow border border-emerald-400">
+            දත්ත යාවත්කාලීන කරන්න (Refresh)
+          </button>
+          <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md">
+            නැවත සකසන්න (Reset)
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-emerald-900">
+    <div id="loadingIndicator" class="flex flex-col items-center justify-center p-12 text-emerald-900">
       <div class="loader rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4"></div>
-      <p class="font-semibold">සියලු ගොවිපල දත්ත පූරණය වෙමින් පවතී...</p>
+      <p class="font-semibold">Google Sheet වෙතින් සියලු ගොවිපල දත්ත පූරණය වෙමින් පවතී...</p>
     </div>
 
+    <!-- Error Message Box -->
+    <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
+
     <!-- Results Container -->
-    <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <div id="resultsContainer" class="space-y-8"></div>
   </main>
 
   <script>
-    // =========================================================================
-    // 1. ඔබේ Google Sheet / Apps Script URL එක මෙතැනට යොදන්න:
-    // උදා: const DATA_URL = "https://script.google.com/macros/s/XXXX/exec";
-    // නැතහොත් Google Sheet Published CSV URL එක යොදන්න.
-    // =========================================================================
-    const DATA_URL = ""; 
+    // ඔබේ Google Sheet Published CSV Link එක
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP84tFeQVUdQPPNKClWWMrsaUDq5dbDwVfj20Fsc1Velr7DDOV2rRX3fxBggu6_uByW8byTV4jsDCV/pub?output=csv";
 
-    // DATA_URL හිස් නම් පමණක් මෙම උදාහරණ දත්ත පෙන්වයි
-    let aiRecords = [
-      {
-        "Farm ID": "613001",
-        "Farmer Name": "සුනිල් ජයසිංහ",
-        "LDI Division": "ඉබ්බාගමුව",
-        "Village": "කුඹුක්ගැටේ",
-        "Phone": "0771234567",
-        "Cow Tag / Name": "C-101 (රත්ති)",
-        "AI Date": "2026-10-12",
-        "Bull Breed": "Friesian",
-        "Semen Batch": "FR-452",
-        "PD Date": "2026-12-15",
-        "PD Result": "Pregnant (ගැබ්ගෙන ඇත)",
-        "Expected Calving": "2027-07-19"
-      },
-      {
-        "Farm ID": "613002",
-        "Farmer Name": "කමලා රත්නායක",
-        "LDI Division": "මැල්සිරිපුර",
-        "Village": "පන්සියගම",
-        "Phone": "0719876543",
-        "Cow Tag / Name": "C-204 (සුදු)",
-        "AI Date": "2026-10-18",
-        "Bull Breed": "Jersey",
-        "Semen Batch": "JR-118",
-        "PD Date": "2026-12-20",
-        "PD Result": "Pending",
-        "Expected Calving": "2027-07-25"
-      }
-    ];
+    let aiRecords = [];
+    let farmIdKey = "";
+    let farmerNameKey = "";
+    let aiDateKey = "";
 
     const farmIdInput = document.getElementById("farmIdInput");
     const farmerNameInput = document.getElementById("farmerNameInput");
@@ -190,65 +167,146 @@
     const resultsContainer = document.getElementById("resultsContainer");
     const recordCountBadge = document.getElementById("recordCountBadge");
     const loadingIndicator = document.getElementById("loadingIndicator");
+    const errorBox = document.getElementById("errorBox");
 
-    // ඕනෑම තීරු නාමයකින් (Farm ID / farmId / ගොවිපල අංකය) අගය ලබාගැනීම
+    // තීරු නාම (Headers) ස්වයංක්‍රීයව හඳුනාගැනීම
+    function detectColumnKeys(headers) {
+      farmIdKey =
+        headers.find(h => /farm\s*id|farm_id|ගොවිපල|අංකය/i.test(h)) ||
+        headers[0] || "";
+
+      farmerNameKey =
+        headers.find(h => /farmer\s*name|farmer|name|ගොවි|නම/i.test(h) && h !== farmIdKey) ||
+        headers[1] || "";
+
+      aiDateKey =
+        headers.find(h => /ai\s*date|date|දිනය/i.test(h)) || "";
+    }
+
     function getFarmId(record) {
-      return String(
-        record["Farm ID"] || record["farmId"] || record["farm_id"] || record["ගොවිපල අංකය"] || Object.values(record)[0] || ""
-      ).trim();
+      return String(record[farmIdKey] || "").trim();
     }
 
-    // ඕනෑම තීරු නාමයකින් (Farmer Name / farmerName / නම) අගය ලබාගැනීම
     function getFarmerName(record) {
-      return String(
-        record["Farmer Name"] || record["farmerName"] || record["farmer_name"] || record["Name"] || record["ගොවිමහතාගේ නම"] || Object.values(record)[1] || ""
-      ).trim();
+      return String(record[farmerNameKey] || "").trim();
     }
 
-    // Google Sheet / API වෙතින් සියලුම දත්ත ලබාගැනීම
+    function getAiDate(record) {
+      return String(aiDateKey ? (record[aiDateKey] || "") : "").trim();
+    }
+
+    // Google Sheet CSV වෙතින් දත්ත පූරණය කිරීම
     async function loadAllData() {
-      if (!DATA_URL) {
-        renderCards(aiRecords);
-        return;
-      }
-
       loadingIndicator.classList.remove("hidden");
-      try {
-        const response = await fetch(DATA_URL);
-        const text = await response.text();
+      errorBox.classList.add("hidden");
+      resultsContainer.innerHTML = "";
 
-        // JSON ද CSV ද යන්න පරීක්ෂා කිරීම
-        if (text.trim().startsWith("[") || text.trim().startsWith("{")) {
-          const json = JSON.parse(text);
-          aiRecords = Array.isArray(json) ? json : (json.data || []);
-        } else {
-          aiRecords = parseCSV(text);
+      try {
+        // Cache නොවී අලුත්ම දත්ත ලබාගැනීමට timestamp එකතු කිරීම
+        const cacheBusterUrl = `${DATA_URL}&t=${Date.now()}`;
+        const response = await fetch(cacheBusterUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status}`);
         }
+
+        const csvText = await response.text();
+        const parsed = parseCSVProperly(csvText);
+
+        if (parsed.headers.length > 0) {
+          detectColumnKeys(parsed.headers);
+        }
+
+        // Farm ID හෝ Farmer Name තිබෙන වලංගු පේළි පමණක් ගැනීම
+        aiRecords = parsed.records.filter(row => getFarmId(row) !== "" || getFarmerName(row) !== "");
+
+        if (aiRecords.length === 0) {
+          errorBox.textContent = "Google Sheet එකෙහි දත්ත හමු නොවීය. කරුණාකර Sheet එක Publish කර ඇත්දැයි පරීක්ෂා කරන්න.";
+          errorBox.classList.remove("hidden");
+        }
+
+        filterExactOrPartial(false);
       } catch (err) {
         console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
+        errorBox.innerHTML = `
+          Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය. <br>
+          <span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කරන්න, නැතහොත් මෙම HTML ගොනුව Live Server / Hosting (GitHub Pages, Netlify ආදිය) හරහා විවෘත කරන්න.</span>
+        `;
+        errorBox.classList.remove("hidden");
       } finally {
         loadingIndicator.classList.add("hidden");
-        renderCards(aiRecords);
       }
     }
 
-    // CSV දත්ත JSON බවට පත් කිරීම (සියලුම තීරු ඇතුළත් වන පරිදි)
-    function parseCSV(csvText) {
-      const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
-      if (lines.length < 2) return [];
-      const headers = lines[0].split(",").map(h => h.replace(/^"|"$/g, "").trim());
+    // හිස් කොටු (Empty cells) සහ කොමා (,) නිවැරදිව කියවන CSV Parser
+    function parseCSVProperly(csvText) {
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let insideQuotes = false;
 
-      return lines.slice(1).map(line => {
-        const values = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentVal += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentVal.trim());
+          currentVal = "";
+        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+          if (char === "\r" && nextChar === "\n") i++;
+          currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return { headers: [], records: [] };
+
+      // අනවශ්‍ය හිස් Header තීරු මඟහැරීම
+      const rawHeaders = rows[0];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      const records = rows.slice(1).map(row => {
         const obj = {};
-        headers.forEach((header, index) => {
-          obj[header] = (values[index] || "").replace(/^"|"$/g, "").trim();
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
         });
         return obj;
       });
+
+      return { headers, records };
     }
 
-    // Farm ID Dropdown පෙන්වීම
+    // Escape helper for HTML onclick attributes
+    function escapeJsString(str) {
+      return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    // Farm ID Dropdown
     function renderFarmIdOptions(filterText = "") {
       const query = filterText.trim().toLowerCase();
       const uniqueIds = [...new Set(aiRecords.map(getFarmId))].filter(Boolean);
@@ -258,13 +316,18 @@
         farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන ගොවිපල අංකයක් හමු නොවීය</div>`;
       } else {
         farmIdDropdown.innerHTML = matches.map(id => {
-          const record = aiRecords.find(r => getFarmId(r) === id);
-          const name = record ? getFarmerName(record) : "";
+          const farmEntries = aiRecords.filter(r => getFarmId(r) === id);
+          const name = farmEntries[0] ? getFarmerName(farmEntries[0]) : "";
           return `
-            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center"
-                 onclick="selectFarmId('${id.replace(/'/g, "\\'")}')">
-              <span class="font-bold text-emerald-950">${id}</span>
-              <span class="text-xs text-emerald-700">${name}</span>
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 onclick="selectFarmId('${escapeJsString(id)}')">
+              <div>
+                <span class="font-bold text-emerald-950">${id}</span>
+                <span class="text-xs text-emerald-700 ml-2">${name ? `(${name})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
             </div>
           `;
         }).join("");
@@ -272,7 +335,7 @@
       farmIdDropdown.classList.remove("hidden");
     }
 
-    // Farmer Name Dropdown පෙන්වීම
+    // Farmer Name Dropdown
     function renderFarmerNameOptions(filterText = "") {
       const query = filterText.trim().toLowerCase();
       const uniqueNames = [...new Set(aiRecords.map(getFarmerName))].filter(Boolean);
@@ -282,13 +345,18 @@
         farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන නමක් හමු නොවීය</div>`;
       } else {
         farmerNameDropdown.innerHTML = matches.map(name => {
-          const record = aiRecords.find(r => getFarmerName(r) === name);
-          const id = record ? getFarmId(record) : "";
+          const farmEntries = aiRecords.filter(r => getFarmerName(r) === name);
+          const id = farmEntries[0] ? getFarmId(farmEntries[0]) : "";
           return `
-            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center"
-                 onclick="selectFarmerName('${name.replace(/'/g, "\\'")}')">
-              <span class="font-bold text-emerald-950">${name}</span>
-              <span class="text-xs text-emerald-700">Farm ID: ${id}</span>
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 onclick="selectFarmerName('${escapeJsString(name)}')">
+              <div>
+                <span class="font-bold text-emerald-950">${name}</span>
+                <span class="text-xs text-emerald-700 ml-2">${id ? `(ID: ${id})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
             </div>
           `;
         }).join("");
@@ -306,84 +374,134 @@
       farmIdDropdown.classList.add("hidden");
     }
 
+    // Dropdown එකෙන් Farm ID තේරූ විට එම ගොවිපලේ සියලුම දිනවල වාර්තා පෙන්වීම
     function selectFarmId(id) {
       farmIdInput.value = id;
       const found = aiRecords.find(r => getFarmId(r) === id);
       if (found) farmerNameInput.value = getFarmerName(found);
       farmIdDropdown.classList.add("hidden");
-      filterResults();
+      filterExactOrPartial(true);
     }
 
+    // Dropdown එකෙන් නම තේරූ විට එම ගොවිමහතාගේ සියලුම දිනවල වාර්තා පෙන්වීම
     function selectFarmerName(name) {
       farmerNameInput.value = name;
       const found = aiRecords.find(r => getFarmerName(r) === name);
       if (found) farmIdInput.value = getFarmId(found);
       farmerNameDropdown.classList.add("hidden");
-      filterResults();
+      filterExactOrPartial(true);
     }
 
     function onFarmIdInput() {
       renderFarmIdOptions(farmIdInput.value);
-      filterResults();
+      filterExactOrPartial(false);
     }
 
     function onFarmerNameInput() {
       renderFarmerNameOptions(farmerNameInput.value);
-      filterResults();
+      filterExactOrPartial(false);
     }
 
-    function filterResults() {
+    function filterExactOrPartial(isExactSelection = false) {
       const idQuery = farmIdInput.value.trim().toLowerCase();
       const nameQuery = farmerNameInput.value.trim().toLowerCase();
 
       const filtered = aiRecords.filter(item => {
-        const matchesId = !idQuery || getFarmId(item).toLowerCase().includes(idQuery);
-        const matchesName = !nameQuery || getFarmerName(item).toLowerCase().includes(nameQuery);
+        const itemId = getFarmId(item).toLowerCase();
+        const itemName = getFarmerName(item).toLowerCase();
+
+        if (isExactSelection) {
+          return (idQuery && itemId === idQuery) || (nameQuery && itemName === nameQuery);
+        }
+        const matchesId = !idQuery || itemId.includes(idQuery);
+        const matchesName = !nameQuery || itemName.includes(nameQuery);
         return matchesId && matchesName;
       });
 
-      renderCards(filtered);
+      renderGroupedFarms(filtered);
     }
 
-    // සියලුම ගොවිපල විස්තර (සියලුම Columns) Card එක තුළ පෙන්වීම
-    function renderCards(data) {
-      recordCountBadge.textContent = `පෙන්වන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
+    // එක් එක් ගොවිමහතා යටතේ සියලුම දිනවල කෘත්‍රිම සිංචන විස්තර පෙන්වීම
+    function renderGroupedFarms(data) {
+      recordCountBadge.textContent = `පෙන්වන මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
 
       if (!data.length) {
         resultsContainer.innerHTML = `
-          <div class="col-span-full bg-white/90 p-6 rounded-2xl text-center text-emerald-900 font-semibold shadow">
+          <div class="bg-white/90 p-8 rounded-2xl text-center text-emerald-900 font-bold shadow">
             සෙවුමට ගැලපෙන කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
           </div>
         `;
         return;
       }
 
-      resultsContainer.innerHTML = data.map(item => {
-        const farmId = getFarmId(item);
-        const farmerName = getFarmerName(item);
+      // Farm ID + Farmer Name අනුව වාර්තා එකතු (Group) කිරීම
+      const grouped = {};
+      data.forEach(item => {
+        const fId = getFarmId(item);
+        const fName = getFarmerName(item);
+        const key = `${fId}__${fName}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            farmId: fId,
+            farmerName: fName,
+            records: []
+          };
+        }
+        grouped[key].records.push(item);
+      });
 
-        // වාර්තාවේ ඇති සියලුම තීරු (Fields) පෙළගැස්වීම
-        const allDetailsHtml = Object.entries(item)
-          .filter(([key, val]) => val !== null && val !== undefined && String(val).trim() !== "")
-          .map(([key, val]) => `
-            <div class="flex justify-between items-start py-1.5 border-b border-emerald-50 last:border-b-0 text-sm gap-2">
-              <span class="font-semibold text-emerald-800">${key}:</span>
-              <span class="text-gray-800 text-right font-medium">${val}</span>
+      resultsContainer.innerHTML = Object.values(grouped).map(group => {
+        // දිනය අනුව අනුපිළිවෙළට සැකසීම (අලුත්ම දිනය මුලට)
+        const sortedRecords = group.records.sort((a, b) => getAiDate(b).localeCompare(getAiDate(a)));
+
+        const recordsCardsHtml = sortedRecords.map((rec, index) => {
+          const aiDate = getAiDate(rec) || `වාර්තාව #${index + 1}`;
+
+          const fieldsHtml = Object.entries(rec)
+            .filter(([k, v]) => v !== null && v !== undefined && String(v).trim() !== "")
+            .map(([k, v]) => `
+              <div class="flex justify-between items-start py-1.5 border-b border-emerald-100/80 last:border-b-0 text-sm gap-2">
+                <span class="font-semibold text-emerald-900">${k}:</span>
+                <span class="text-gray-800 text-right font-medium">${v}</span>
+              </div>
+            `).join("");
+
+          return `
+            <div class="bg-emerald-50/70 border border-emerald-300 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-emerald-200">
+                <span class="text-xs font-extrabold text-white bg-emerald-700 px-3 py-1 rounded-full">
+                  ${aiDate}
+                </span>
+                <span class="text-xs font-bold text-emerald-800">#${index + 1}</span>
+              </div>
+              <div class="space-y-0.5">
+                ${fieldsHtml}
+              </div>
             </div>
-          `).join("");
+          `;
+        }).join("");
 
         return `
-          <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-emerald-700 hover:shadow-xl transition">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
-                Farm ID: ${farmId}
-              </span>
+          <div class="bg-white p-6 md:p-7 rounded-3xl shadow-xl border-l-8 border-emerald-700">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b-2 border-emerald-200">
+              <div>
+                ${group.farmId ? `
+                  <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full mb-1">
+                    Farm ID: ${group.farmId}
+                  </span>
+                ` : ""}
+                <h3 class="text-xl md:text-2xl font-extrabold text-emerald-950">
+                  ${group.farmerName || "නම සඳහන් කර නැත"}
+                </h3>
+              </div>
+              <div class="bg-emerald-900 text-white px-4 py-2 rounded-2xl text-sm font-extrabold shadow">
+                මුළු සිංචන වාර ගණන: ${sortedRecords.length}
+              </div>
             </div>
-            <h3 class="text-lg font-extrabold text-emerald-950 mb-3 pb-2 border-b-2 border-emerald-200">
-              ${farmerName}
-            </h3>
-            <div class="space-y-0.5">
-              ${allDetailsHtml}
+
+            <!-- එම ගොවියාගේ සියලුම දිනවල වාර්තා -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${recordsCardsHtml}
             </div>
           </div>
         `;
@@ -395,7 +513,7 @@
       farmerNameInput.value = "";
       farmIdDropdown.classList.add("hidden");
       farmerNameDropdown.classList.add("hidden");
-      renderCards(aiRecords);
+      renderGroupedFarms(aiRecords);
     }
 
     document.addEventListener("click", (e) => {
@@ -407,7 +525,7 @@
       }
     });
 
-    // පිටුව විවෘත වන විට සියලු දත්ත පූරණය කිරීම
+    // පිටුව විවෘත වන විට Google Sheet දත්ත පූරණය කිරීම
     loadAllData();
   </script>
 </body>
