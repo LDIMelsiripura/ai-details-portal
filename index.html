@@ -9,86 +9,152 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   
   <style>
-    /* සිංහල Fonts සහ පසුබිම් Gradient සදහා */
+    /* සිංහල Fonts සහ කොළ පාට පසුබිම් Gradient සඳහා */
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Noto Sans Sinhala'; 
-      background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #a7f3d0 100%);
+      background-attachment: fixed;
     }
+
+    /* Card Entrance & Hover Animations */
+    @keyframes cardEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.985);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
     .data-card { 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-      border-left: 5px solid #2563eb;
+      animation: cardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; 
+      border-left: 6px solid #059669;
     }
+
     .data-card:hover { 
-      transform: translateY(-4px); 
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+      transform: translateY(-6px) scale(1.005); 
+      border-left-color: #10b981;
+      box-shadow: 0 22px 32px -8px rgba(5, 150, 105, 0.22), 0 10px 14px -6px rgba(16, 185, 129, 0.14); 
     }
-    
-    /* Search Box එක සදහා වන අලංකාර Animation සහ Light Blue Theme එක */
+
+    /* Search Box එක සඳහා වන Emerald/Mint Gradient සහ Animations */
     .animated-search-box {
-      background: linear-gradient(135deg, #ebf8ff 0%, #e0f2fe 100%);
-      border: 2px solid #bae6fd;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 55%, #ccfbf1 100%);
+      border: 2px solid #86efac;
       position: relative;
       overflow: hidden;
-      transition: all 0.4s ease;
+      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
     .animated-search-box::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
-      transform: rotate(45deg);
-      animation: pulseGlow 6s infinite linear;
+      top: -60%;
+      left: -60%;
+      width: 220%;
+      height: 220%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(45, 212, 191, 0.08) 40%, transparent 72%);
+      animation: pulseGlow 9s infinite linear;
       pointer-events: none;
     }
+
+    .animated-search-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.45) 50%, transparent 75%);
+      transform: translateX(-120%);
+      animation: lightSweep 6.5s infinite ease-in-out;
+      pointer-events: none;
+    }
+
     @keyframes pulseGlow {
       0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.1); }
+      50% { transform: rotate(180deg) scale(1.12); }
       100% { transform: rotate(360deg) scale(1); }
     }
-    .animated-search-box:hover {
-      border-color: #38bdf8;
-      box-shadow: 0 15px 30px -5px rgba(56, 189, 248, 0.25);
+
+    @keyframes lightSweep {
+      0%, 65% { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
     }
 
-    .loader { border-top-color: #2563eb; -webkit-animation: spinner 1.2s linear infinite; animation: spinner 1.2s linear infinite; }
-    @-webkit-keyframes spinner { 0% { -webkit-transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); } }
-    @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .animated-search-box:hover {
+      border-color: #22c55e;
+      box-shadow: 0 20px 35px -8px rgba(16, 185, 129, 0.28);
+      transform: translateY(-2px);
+    }
+
+    /* Floating & Gentle Pulse Animations */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .animate-float-slow {
+      animation: floatSlow 3.4s ease-in-out infinite;
+    }
+
+    /* Input Focus Lift */
+    .emerald-input {
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .emerald-input:focus {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -6px rgba(16, 185, 129, 0.35);
+    }
+
+    /* Loader Animation */
+    .loader { 
+      border-top-color: #059669; 
+      border-right-color: #10b981;
+      -webkit-animation: spinner 1.05s linear infinite; 
+      animation: spinner 1.05s linear infinite; 
+    }
+    @-webkit-keyframes spinner { 
+      0% { -webkit-transform: rotate(0deg); } 
+      100% { -webkit-transform: rotate(360deg); } 
+    }
+    @keyframes spinner { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
   </style>
 </head>
-<body class="min-h-screen text-gray-800">
+<body class="min-h-screen text-gray-800 flex flex-col">
 
-  <!-- Header with Modern Gradient Background -->
-  <header class="bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-700 shadow-lg text-white p-4 sticky top-0 z-50">
+  <!-- Header with Vibrant Emerald Gradient Background -->
+  <header class="bg-gradient-to-r from-emerald-900 via-green-800 to-teal-700 shadow-lg shadow-emerald-900/20 text-white p-4 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
       
       <!-- Logo and Title -->
       <div class="flex items-center gap-3">
-        <div class="bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/20 shadow-inner">
+        <div class="bg-white/15 p-2 rounded-xl backdrop-blur-md border border-emerald-300/30 shadow-inner animate-float-slow">
           <img src="https://img.icons8.com/color/48/cow.png" alt="Cow Icon" class="w-9 h-9">
         </div>
-        <h1 class="text-lg md:text-xl font-bold tracking-wide">කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය</h1>
+        <h1 class="text-lg md:text-xl font-bold tracking-wide drop-shadow-sm">කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය</h1>
       </div>
 
       <!-- Navigation Menu Links -->
-      <nav class="flex items-center gap-2 bg-white/10 p-1.5 rounded-xl backdrop-blur-md border border-white/20">
-        <a href="index.html" class="bg-white text-blue-900 font-bold px-4 py-2 rounded-lg text-sm transition shadow-md">කෘත්‍රිම සිංචන දත්ත</a>
-        <a href="report.html" class="text-white hover:bg-white/20 font-medium px-4 py-2 rounded-lg text-sm transition">Melsiripura LDI දත්ත</a>
+      <nav class="flex items-center gap-2 bg-white/15 p-1.5 rounded-xl backdrop-blur-md border border-emerald-200/25">
+        <a href="index.html" class="bg-white text-emerald-900 font-bold px-4 py-2 rounded-lg text-sm transition duration-300 shadow-md hover:bg-emerald-50">කෘත්‍රිම සිංචන දත්ත</a>
+        <a href="report.html" class="text-emerald-50 hover:bg-white/20 hover:text-white font-medium px-4 py-2 rounded-lg text-sm transition duration-300">Melsiripura LDI දත්ත</a>
       </nav>
 
     </div>
   </header>
 
   <!-- Main Content Area -->
-  <main class="max-w-7xl mx-auto p-6">
+  <main class="max-w-7xl mx-auto p-6 flex-grow w-full">
     
-    <!-- Animated Light Blue Search Section -->
+    <!-- Animated Emerald Search Section -->
     <div class="animated-search-box p-6 md:p-8 rounded-3xl shadow-xl mb-8">
-      <h2 class="text-lg md:text-xl font-extrabold text-sky-900 mb-6 flex items-center gap-3">
-        <div class="p-2 bg-sky-500 text-white rounded-xl shadow-md">
-          <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <h2 class="text-lg md:text-xl font-extrabold text-emerald-950 mb-6 flex items-center gap-3 relative z-10">
+        <div class="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-md shadow-emerald-600/30 animate-bounce">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
         ගොවිපල අංකය හෝ ගොවිමහතාගේ නම සෘජුවම ටයිප් කරන්න
       </h2>
@@ -96,8 +162,8 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 relative z-10">
         <!-- Farm ID Input with Datalist -->
         <div>
-          <label class="block text-sm font-bold text-sky-900 mb-2">ගොවිපල අංකය (Farm ID - 6130...):</label>
-          <input type="text" id="farmIdInput" list="farmIdOptions" placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..." oninput="onFarmIdInput()" class="w-full p-4 border-2 border-sky-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-sky-400/30 focus:border-sky-500 bg-white/90 backdrop-blur-sm transition font-medium shadow-sm" autocomplete="off">
+          <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිපල අංකය (Farm ID - 6130...):</label>
+          <input type="text" id="farmIdInput" list="farmIdOptions" placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..." oninput="onFarmIdInput()" class="emerald-input w-full p-4 border-2 border-emerald-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-400/35 focus:border-emerald-500 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
           <datalist id="farmIdOptions">
             <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
           </datalist>
@@ -105,8 +171,8 @@
 
         <!-- Farmer Name Input with Datalist -->
         <div>
-          <label class="block text-sm font-bold text-sky-900 mb-2">ගොවිමහතාගේ නම (Farmer Name):</label>
-          <input type="text" id="farmerNameInput" list="farmerNameOptions" placeholder="නම ටයිප් කරන්න..." oninput="onFarmerNameInput()" class="w-full p-4 border-2 border-sky-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-sky-400/30 focus:border-sky-500 bg-white/90 backdrop-blur-sm transition font-medium shadow-sm" autocomplete="off">
+          <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිමහතාගේ නම (Farmer Name):</label>
+          <input type="text" id="farmerNameInput" list="farmerNameOptions" placeholder="නම ටයිප් කරන්න..." oninput="onFarmerNameInput()" class="emerald-input w-full p-4 border-2 border-emerald-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-400/35 focus:border-emerald-500 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
           <datalist id="farmerNameOptions">
             <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
           </datalist>
@@ -115,30 +181,30 @@
 
       <!-- Reset / Clear Button -->
       <div class="flex justify-end relative z-10">
-        <button onclick="resetSearch()" class="bg-white hover:bg-sky-50 text-sky-800 font-bold px-6 py-3 rounded-xl text-sm transition shadow-md border border-sky-200 flex items-center gap-2 transform hover:-translate-y-0.5">
-          <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md shadow-emerald-600/25 border border-emerald-400/40 flex items-center gap-2 transform hover:-translate-y-0.5 active:scale-95">
+          <svg class="w-4 h-4 text-emerald-100 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           නැවත සකසන්න (Reset)
         </button>
       </div>
     </div>
 
     <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-gray-600">
-      <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-      <p class="font-medium">දත්ත පූරණය වෙමින් පවතී, කරුණාකර රැඳී සිටින්න...</p>
+    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-emerald-800">
+      <div class="loader ease-linear rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4 shadow-md"></div>
+      <p class="font-semibold animate-pulse">දත්ත පූරණය වෙමින් පවතී, කරුණාකර රැඳී සිටින්න...</p>
     </div>
 
     <!-- Results Display Area -->
     <div id="resultsContainer" class="space-y-6">
-      <div class="text-center p-16 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm text-gray-400 border border-white">
-        <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-70"/>
-        ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.
+      <div class="text-center p-16 bg-white/85 backdrop-blur-md rounded-2xl shadow-sm text-emerald-700/70 border border-emerald-200/80 transition-all duration-300">
+        <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-80 animate-float-slow"/>
+        <p class="font-medium">ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.</p>
       </div>
     </div>
 
   </main>
 
-  <footer class="text-center p-6 text-gray-500 text-sm mt-12 border-t border-gray-300/60 bg-white/40 backdrop-blur-md">
+  <footer class="text-center p-6 text-emerald-900/75 text-sm mt-12 border-t border-emerald-300/60 bg-white/55 backdrop-blur-md">
     © 2026 කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය. සියලු හිමිකම් ඇවිරිණි.
   </footer>
 
@@ -313,14 +379,14 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="text-center p-16 bg-white rounded-2xl shadow-sm text-red-500 border border-red-100">
-            <img src="https://img.icons8.com/isometric/100/delete-property.png" alt="Not Found Icon" class="mx-auto mb-4"/>
+            <img src="https://img.icons8.com/isometric/100/delete-property.png" alt="Not Found Icon" class="mx-auto mb-4 animate-bounce"/>
             තොරතුරු හමු නොවීය.
           </div>
         `;
         return;
       }
 
-      filtered.forEach(item => {
+      filtered.forEach((item, index) => {
         const farmId = getFieldValue(item, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']);
         const farmerName = getFieldValue(item, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']);
         const address = getFieldValue(item, ['Address', 'address']);
@@ -345,35 +411,37 @@
         const formattedCalvingDate = formatDate(getFieldValue(item, ['Calving_Date_1', 'Calving Date 1', 'calving_date_1']));
         const formattedDateToBeCalved = formatDate(rawDateToBeCalved);
 
+        const staggerDelay = Math.min(index * 70, 500);
+
         const card = `
-          <div class="data-card bg-white p-6 rounded-2xl shadow-md border border-gray-100 mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-gray-100 pb-4">
+          <div style="animation-delay: ${staggerDelay}ms" class="data-card bg-white p-6 rounded-2xl shadow-md border border-emerald-100 mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-emerald-100 pb-4">
               <div>
-                <h2 class="text-2xl font-extrabold text-blue-900">${farmerName || '-'}</h2>
+                <h2 class="text-2xl font-extrabold text-emerald-950">${farmerName || '-'}</h2>
                 <p class="text-sm text-gray-600 mt-1.5 flex items-center gap-2">
-                  <span class="bg-gray-100 text-gray-700 font-semibold px-3 py-1 rounded-lg border border-gray-200">Farm ID: <span class="text-blue-600">${farmId || '-'}</span></span>
+                  <span class="bg-emerald-50 text-emerald-800 font-semibold px-3 py-1 rounded-lg border border-emerald-200">Farm ID: <span class="text-emerald-600 font-bold">${farmId || '-'}</span></span>
                 </p>
               </div>
-              <div class="text-left md:text-right text-gray-600 bg-blue-50/50 p-3.5 rounded-xl border border-blue-100 text-sm space-y-1">
+              <div class="text-left md:text-right text-gray-700 bg-gradient-to-br from-emerald-50/90 to-teal-50/70 p-3.5 rounded-xl border border-emerald-200/70 text-sm space-y-1">
                 <p><strong>Address:</strong> ${address || '-'}</p>
-                <p><strong>Contact no:</strong> <a href="tel:${contactNo}" class="text-blue-600 hover:underline font-semibold">${contactNo || '-'}</a></p>
+                <p><strong>Contact no:</strong> <a href="tel:${contactNo}" class="text-emerald-700 hover:text-emerald-900 hover:underline font-semibold transition">${contactNo || '-'}</a></p>
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm bg-gradient-to-br from-blue-50/60 to-indigo-50/30 p-4 rounded-xl border border-blue-100/60">
-              <p><strong>Date:</strong> <span class="font-semibold text-blue-900">${formattedDate}</span></p>
-              <p><strong>Cow ID:</strong> <span class="font-semibold text-blue-900">${getFieldValue(item, ['Cow_ID', 'Cow ID', 'cow_id']) || '-'}</span></p>
-              <p><strong>No of calving:</strong> <span class="font-semibold text-blue-900">${getFieldValue(item, ['No_of_calving', 'No of calving', 'no_of_calving']) || '-'}</span></p>
-              <p><strong>Calving Date 1:</strong> <span class="font-semibold text-blue-900">${formattedCalvingDate}</span></p>
-              <p><strong>Milk Production:</strong> <span class="font-semibold text-blue-900">${milkProd ? milkProd + ' L' : '-'}</span></p>
-              <p><strong>Semen code:</strong> <span class="font-semibold text-blue-900">${getFieldValue(item, ['Semen_code', 'Semen Code', 'semen_code']) || '-'}</span></p>
-              <p><strong>Receipt no:</strong> <span class="font-semibold text-blue-900">${receiptNo || '-'}</span></p>
-              <p><strong>Date to be calved:</strong> <span class="font-semibold text-blue-900">${formattedDateToBeCalved || '-'}</span></p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm bg-gradient-to-br from-emerald-50/75 via-green-50/45 to-teal-50/60 p-4 rounded-xl border border-emerald-200/60">
+              <p><strong>Date:</strong> <span class="font-semibold text-emerald-950">${formattedDate}</span></p>
+              <p><strong>Cow ID:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['Cow_ID', 'Cow ID', 'cow_id']) || '-'}</span></p>
+              <p><strong>No of calving:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['No_of_calving', 'No of calving', 'no_of_calving']) || '-'}</span></p>
+              <p><strong>Calving Date 1:</strong> <span class="font-semibold text-emerald-950">${formattedCalvingDate}</span></p>
+              <p><strong>Milk Production:</strong> <span class="font-semibold text-emerald-950">${milkProd ? milkProd + ' L' : '-'}</span></p>
+              <p><strong>Semen code:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['Semen_code', 'Semen Code', 'semen_code']) || '-'}</span></p>
+              <p><strong>Receipt no:</strong> <span class="font-semibold text-emerald-950">${receiptNo || '-'}</span></p>
+              <p><strong>Date to be calved:</strong> <span class="font-semibold text-emerald-950">${formattedDateToBeCalved || '-'}</span></p>
             </div>
             
-            <div class="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-3 text-sm">
-              ${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo']) ? `<a href="${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo'])}" target="_blank" class="bg-blue-50 text-blue-700 font-semibold px-4 py-2 rounded-xl hover:bg-blue-100 transition shadow-sm border border-blue-200">Semen Deposit Photo බලන්න →</a>` : ''}
-              ${getFieldValue(item, ['pdf', 'PDF']) ? `<a href="${getFieldValue(item, ['pdf', 'PDF'])}" target="_blank" class="bg-green-50 text-green-700 font-semibold px-4 py-2 rounded-xl hover:bg-green-100 transition shadow-sm border border-green-200">PDF Document එක බලන්න →</a>` : ''}
+            <div class="mt-4 pt-4 border-t border-emerald-100 flex flex-wrap gap-3 text-sm">
+              ${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo']) ? `<a href="${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo'])}" target="_blank" class="bg-emerald-50 text-emerald-800 font-semibold px-4 py-2 rounded-xl hover:bg-emerald-100 hover:-translate-y-0.5 transition duration-200 shadow-sm border border-emerald-200">Semen Deposit Photo බලන්න →</a>` : ''}
+              ${getFieldValue(item, ['pdf', 'PDF']) ? `<a href="${getFieldValue(item, ['pdf', 'PDF'])}" target="_blank" class="bg-teal-50 text-teal-800 font-semibold px-4 py-2 rounded-xl hover:bg-teal-100 hover:-translate-y-0.5 transition duration-200 shadow-sm border border-teal-200">PDF Document එක බලන්න →</a>` : ''}
             </div>
           </div>
         `;
@@ -383,9 +451,9 @@
 
     function resetResultsIfEmpty() {
       document.getElementById('resultsContainer').innerHTML = `
-        <div class="text-center p-16 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm text-gray-400 border border-white">
-          <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-70"/>
-          ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.
+        <div class="text-center p-16 bg-white/85 backdrop-blur-md rounded-2xl shadow-sm text-emerald-700/70 border border-emerald-200/80 transition-all duration-300">
+          <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-80 animate-float-slow"/>
+          <p class="font-medium">ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.</p>
         </div>
       `;
     }
