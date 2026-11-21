@@ -9,11 +9,53 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   
   <style>
-    /* සිංහල Fonts සහ කොළ පාට පසුබිම් Gradient සඳහා */
+    /* සිංහල Fonts සහ තද කොළ පාට පසුබිම් Gradient සඳහා */
     body { 
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Noto Sans Sinhala'; 
-      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #a7f3d0 100%);
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 45%, #6ee7b7 100%);
       background-attachment: fixed;
+    }
+
+    /* ඉහළ Header කොටස - පහළට වඩා තද හා වර්ණවත් Gradient + Animated Shine */
+    .rich-header {
+      background: linear-gradient(120deg, #022c22 0%, #064e3b 35%, #047857 72%, #0f766e 100%);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 3px solid #10b981;
+      box-shadow: 0 12px 30px -6px rgba(2, 44, 34, 0.55), 0 4px 12px -2px rgba(4, 120, 87, 0.35);
+    }
+
+    .rich-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 18% 50%, rgba(52, 211, 153, 0.24) 0%, transparent 45%),
+                  radial-gradient(circle at 82% 30%, rgba(45, 212, 191, 0.22) 0%, transparent 50%);
+      animation: headerGlowShift 8s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    .rich-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 65%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(167, 243, 208, 0.18), transparent);
+      transform: skewX(-22deg);
+      animation: headerSheen 5.5s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    @keyframes headerGlowShift {
+      0% { opacity: 0.75; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    @keyframes headerSheen {
+      0%, 62% { left: -130%; }
+      100% { left: 160%; }
     }
 
     /* Card Entrance & Hover Animations */
@@ -31,19 +73,19 @@
     .data-card { 
       animation: cardEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
       transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease; 
-      border-left: 6px solid #059669;
+      border-left: 6px solid #065f46;
     }
 
     .data-card:hover { 
       transform: translateY(-6px) scale(1.005); 
-      border-left-color: #10b981;
-      box-shadow: 0 22px 32px -8px rgba(5, 150, 105, 0.22), 0 10px 14px -6px rgba(16, 185, 129, 0.14); 
+      border-left-color: #059669;
+      box-shadow: 0 22px 32px -8px rgba(6, 78, 59, 0.28), 0 10px 14px -6px rgba(5, 150, 105, 0.18); 
     }
 
-    /* Search Box එක සඳහා වන Emerald/Mint Gradient සහ Animations */
+    /* Search Box එක සඳහා වන Deep Emerald Gradient සහ Animations */
     .animated-search-box {
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 55%, #ccfbf1 100%);
-      border: 2px solid #86efac;
+      background: linear-gradient(135deg, #ecfdf5 0%, #bbf7d0 58%, #99f6e4 100%);
+      border: 2px solid #34d399;
       position: relative;
       overflow: hidden;
       transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
@@ -56,7 +98,7 @@
       left: -60%;
       width: 220%;
       height: 220%;
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(45, 212, 191, 0.08) 40%, transparent 72%);
+      background: radial-gradient(circle, rgba(5, 150, 105, 0.18) 0%, rgba(13, 148, 136, 0.09) 42%, transparent 72%);
       animation: pulseGlow 9s infinite linear;
       pointer-events: none;
     }
@@ -65,7 +107,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.45) 50%, transparent 75%);
+      background: linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.5) 50%, transparent 75%);
       transform: translateX(-120%);
       animation: lightSweep 6.5s infinite ease-in-out;
       pointer-events: none;
@@ -83,8 +125,8 @@
     }
 
     .animated-search-box:hover {
-      border-color: #22c55e;
-      box-shadow: 0 20px 35px -8px rgba(16, 185, 129, 0.28);
+      border-color: #059669;
+      box-shadow: 0 20px 35px -8px rgba(6, 95, 70, 0.32);
       transform: translateY(-2px);
     }
 
@@ -104,13 +146,13 @@
     }
     .emerald-input:focus {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px -6px rgba(16, 185, 129, 0.35);
+      box-shadow: 0 10px 20px -6px rgba(6, 95, 70, 0.38);
     }
 
     /* Loader Animation */
     .loader { 
-      border-top-color: #059669; 
-      border-right-color: #10b981;
+      border-top-color: #065f46; 
+      border-right-color: #059669;
       -webkit-animation: spinner 1.05s linear infinite; 
       animation: spinner 1.05s linear infinite; 
     }
@@ -126,22 +168,29 @@
 </head>
 <body class="min-h-screen text-gray-800 flex flex-col">
 
-  <!-- Header with Vibrant Emerald Gradient Background -->
-  <header class="bg-gradient-to-r from-emerald-900 via-green-800 to-teal-700 shadow-lg shadow-emerald-900/20 text-white p-4 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+  <!-- Rich Deep Green Header Section -->
+  <header class="rich-header text-white p-4 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
       
       <!-- Logo and Title -->
       <div class="flex items-center gap-3">
-        <div class="bg-white/15 p-2 rounded-xl backdrop-blur-md border border-emerald-300/30 shadow-inner animate-float-slow">
+        <div class="bg-emerald-400/20 p-2.5 rounded-xl backdrop-blur-md border border-emerald-300/45 shadow-lg animate-float-slow">
           <img src="https://img.icons8.com/color/48/cow.png" alt="Cow Icon" class="w-9 h-9">
         </div>
-        <h1 class="text-lg md:text-xl font-bold tracking-wide drop-shadow-sm">කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය</h1>
+        <div>
+          <span class="inline-block text-xs uppercase tracking-wider font-bold text-emerald-200 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-400/30 mb-1">
+            Ibbagamuwa Veterinary Office
+          </span>
+          <h1 class="text-lg md:text-xl font-extrabold tracking-wide text-white drop-shadow">
+            කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය
+          </h1>
+        </div>
       </div>
 
       <!-- Navigation Menu Links -->
-      <nav class="flex items-center gap-2 bg-white/15 p-1.5 rounded-xl backdrop-blur-md border border-emerald-200/25">
-        <a href="index.html" class="bg-white text-emerald-900 font-bold px-4 py-2 rounded-lg text-sm transition duration-300 shadow-md hover:bg-emerald-50">කෘත්‍රිම සිංචන දත්ත</a>
-        <a href="report.html" class="text-emerald-50 hover:bg-white/20 hover:text-white font-medium px-4 py-2 rounded-lg text-sm transition duration-300">Melsiripura LDI දත්ත</a>
+      <nav class="flex items-center gap-2 bg-emerald-950/55 p-1.5 rounded-xl backdrop-blur-md border border-emerald-300/30 shadow-inner">
+        <a href="index.html" class="bg-gradient-to-r from-emerald-300 to-teal-200 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-sm transition duration-300 shadow-md hover:from-white hover:to-emerald-100">කෘත්‍රිම සිංචන දත්ත</a>
+        <a href="report.html" class="text-emerald-100 hover:bg-emerald-700/70 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition duration-300">Melsiripura LDI දත්ත</a>
       </nav>
 
     </div>
@@ -150,10 +199,10 @@
   <!-- Main Content Area -->
   <main class="max-w-7xl mx-auto p-6 flex-grow w-full">
     
-    <!-- Animated Emerald Search Section -->
+    <!-- Animated Deep Green Search Section -->
     <div class="animated-search-box p-6 md:p-8 rounded-3xl shadow-xl mb-8">
       <h2 class="text-lg md:text-xl font-extrabold text-emerald-950 mb-6 flex items-center gap-3 relative z-10">
-        <div class="p-2.5 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-md shadow-emerald-600/30 animate-bounce">
+        <div class="p-2.5 bg-gradient-to-br from-emerald-700 to-teal-800 text-white rounded-xl shadow-md shadow-emerald-900/30 animate-bounce">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
         ගොවිපල අංකය හෝ ගොවිමහතාගේ නම සෘජුවම ටයිප් කරන්න
@@ -163,7 +212,7 @@
         <!-- Farm ID Input with Datalist -->
         <div>
           <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිපල අංකය (Farm ID - 6130...):</label>
-          <input type="text" id="farmIdInput" list="farmIdOptions" placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..." oninput="onFarmIdInput()" class="emerald-input w-full p-4 border-2 border-emerald-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-400/35 focus:border-emerald-500 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
+          <input type="text" id="farmIdInput" list="farmIdOptions" placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..." oninput="onFarmIdInput()" class="emerald-input w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
           <datalist id="farmIdOptions">
             <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
           </datalist>
@@ -172,7 +221,7 @@
         <!-- Farmer Name Input with Datalist -->
         <div>
           <label class="block text-sm font-bold text-emerald-950 mb-2">ගොවිමහතාගේ නම (Farmer Name):</label>
-          <input type="text" id="farmerNameInput" list="farmerNameOptions" placeholder="නම ටයිප් කරන්න..." oninput="onFarmerNameInput()" class="emerald-input w-full p-4 border-2 border-emerald-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-400/35 focus:border-emerald-500 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
+          <input type="text" id="farmerNameInput" list="farmerNameOptions" placeholder="නම ටයිප් කරන්න..." oninput="onFarmerNameInput()" class="emerald-input w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white/95 backdrop-blur-sm font-medium shadow-sm" autocomplete="off">
           <datalist id="farmerNameOptions">
             <!-- JavaScript හරහා දත්ත මෙහි පිරවේ -->
           </datalist>
@@ -181,290 +230,14 @@
 
       <!-- Reset / Clear Button -->
       <div class="flex justify-end relative z-10">
-        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md shadow-emerald-600/25 border border-emerald-400/40 flex items-center gap-2 transform hover:-translate-y-0.5 active:scale-95">
-          <svg class="w-4 h-4 text-emerald-100 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <button onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md shadow-emerald-900/30 border border-emerald-500/40 flex items-center gap-2 transform hover:-translate-y-0.5 active:scale-95">
+          <svg class="w-4 h-4 text-emerald-200 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           නැවත සකසන්න (Reset)
         </button>
       </div>
     </div>
 
     <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-emerald-800">
+    <div id="loadingIndicator" class="hidden flex flex-col items-center justify-center p-12 text-emerald-900">
       <div class="loader ease-linear rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4 shadow-md"></div>
-      <p class="font-semibold animate-pulse">දත්ත පූරණය වෙමින් පවතී, කරුණාකර රැඳී සිටින්න...</p>
-    </div>
-
-    <!-- Results Display Area -->
-    <div id="resultsContainer" class="space-y-6">
-      <div class="text-center p-16 bg-white/85 backdrop-blur-md rounded-2xl shadow-sm text-emerald-700/70 border border-emerald-200/80 transition-all duration-300">
-        <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-80 animate-float-slow"/>
-        <p class="font-medium">ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.</p>
-      </div>
-    </div>
-
-  </main>
-
-  <footer class="text-center p-6 text-emerald-900/75 text-sm mt-12 border-t border-emerald-300/60 bg-white/55 backdrop-blur-md">
-    © 2026 කෘත්‍රිම සිංචන තොරතුරු - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය. සියලු හිමිකම් ඇවිරිණි.
-  </footer>
-
-  <script>
-    // --- CONFIGURATION ---
-    const API_URL = "https://script.google.com/macros/s/AKfycbw1XSGoey4yFuvV_gMg37sQpOA3-YAseHX67FT8n-0clTmcxv-U6qFhCqPj6T17CTCS/exec"; 
-    // --- END CONFIGURATION ---
-
-    let farmData = [];
-
-    async function loadData() {
-      const loading = document.getElementById('loadingIndicator');
-      loading.classList.remove('hidden');
-      
-      try {
-        const res = await fetch(API_URL);
-        farmData = await res.json();
-        console.log("Loaded Farm Data successfully:", farmData);
-        populateDatalists();
-      } catch (error) {
-        console.error("Error loading data:", error);
-        document.getElementById('resultsContainer').innerHTML = `
-          <div class="text-center p-12 bg-red-50 text-red-600 rounded-2xl border border-red-200 shadow-sm">
-            <h3 class="font-bold text-lg mb-2">Error Connecting to Data Source</h3>
-            <p>ගූගල් ෂීට් එක සමඟ සම්බන්ධ වීමට නොහැකි විය. Web App URL එක පරීක්ෂා කරන්න.</p>
-          </div>
-        `;
-      } finally {
-        loading.classList.add('hidden');
-      }
-    }
-
-    function getFieldValue(item, keys) {
-      if (!item) return '';
-      
-      for (let key of keys) {
-        // ආරක්ෂාව සඳහා Email හෝ email යන යතුරුවලින් දත්ත ලබා ගැනීම වැළැක්වීම
-        if (key.toLowerCase() === 'email') continue;
-
-        if (item[key] !== undefined && item[key] !== null && item[key] !== '') {
-          return item[key];
-        }
-      }
-      
-      const itemKeys = Object.keys(item);
-      for (let key of keys) {
-        if (key.toLowerCase() === 'email') continue;
-
-        const cleanKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-        for (let actualKey of itemKeys) {
-          if (actualKey.toLowerCase() === 'email') continue;
-
-          const cleanActualKey = actualKey.toLowerCase().replace(/[^a-z0-9]/g, '');
-          if (cleanKey === cleanActualKey) {
-            if (item[actualKey] !== undefined && item[actualKey] !== null && item[actualKey] !== '') {
-              return item[actualKey];
-            }
-          }
-        }
-      }
-      
-      return '';
-    }
-
-    // දිනය සාමාන්‍ය YYYY-MM-DD ආකාරයට සකස් කිරීම
-    function formatDate(dateString) {
-      if (!dateString) return '-';
-      try {
-        const date = new Date(dateString);
-        if (isNaN(date.getTime())) return dateString;
-        
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        
-        return `${year}-${month}-${day}`;
-      } catch (e) {
-        return dateString;
-      }
-    }
-
-    function populateDatalists() {
-      const farmIdList = document.getElementById('farmIdOptions');
-      const farmerNameList = document.getElementById('farmerNameOptions');
-      
-      farmIdList.innerHTML = '';
-      farmerNameList.innerHTML = '';
-      
-      let farmIdsSet = new Set();
-      let farmerNamesSet = new Set();
-
-      farmData.forEach(item => {
-        const farmId = getFieldValue(item, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']);
-        const farmerName = getFieldValue(item, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']);
-
-        if (farmId) farmIdsSet.add(farmId.toString());
-        if (farmerName) farmerNamesSet.add(farmerName.toString().trim());
-      });     
-
-      let sortedFarmIds = Array.from(farmIdsSet).sort((a, b) => 
-        a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-      );
-
-      let sortedFarmerNames = Array.from(farmerNamesSet).sort();
-
-      sortedFarmIds.forEach(id => {
-        let opt = document.createElement('option');
-        opt.value = id;
-        farmIdList.appendChild(opt);
-      });
-
-      sortedFarmerNames.forEach(name => {
-        let opt = document.createElement('option');
-        opt.value = name;
-        farmerNameList.appendChild(opt);
-      });
-    }
-
-    function onFarmIdInput() {
-      const farmIdVal = document.getElementById('farmIdInput').value.trim();
-      if (farmIdVal) {
-        const matchedItem = farmData.find(item => {
-          const fId = getFieldValue(item, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']).toString().toLowerCase();
-          return fId === farmIdVal.toLowerCase();
-        });
-        if (matchedItem) {
-          const fName = getFieldValue(matchedItem, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']);
-          document.getElementById('farmerNameInput').value = fName;
-        }
-
-        displayResults('farm_id', farmIdVal.toLowerCase());
-      } else {
-        document.getElementById('farmerNameInput').value = "";
-        resetResultsIfEmpty();
-      }
-    }
-
-    function onFarmerNameInput() {
-      const farmerNameVal = document.getElementById('farmerNameInput').value.trim();
-      if (farmerNameVal) {
-        const matchedItem = farmData.find(item => {
-          const fName = getFieldValue(item, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']).toString().trim().toLowerCase();
-          return fName === farmerNameVal.toLowerCase();
-        });
-        if (matchedItem) {
-          const fId = getFieldValue(matchedItem, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']);
-          document.getElementById('farmIdInput').value = fId;
-        }
-
-        displayResults('farmer_name', farmerNameVal.toLowerCase());
-      } else {
-        document.getElementById('farmIdInput').value = "";
-        resetResultsIfEmpty();
-      }
-    }
-
-    function displayResults(type, query) {
-      const container = document.getElementById('resultsContainer');
-      container.innerHTML = '';
-
-      const filtered = farmData.filter(item => {
-        const farmId = getFieldValue(item, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']).toString().toLowerCase();
-        const farmerName = getFieldValue(item, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']).toString().trim().toLowerCase();
-        
-        if (type === 'farm_id') {
-          return farmId.includes(query);
-        } else {
-          return farmerName.includes(query);
-        }
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="text-center p-16 bg-white rounded-2xl shadow-sm text-red-500 border border-red-100">
-            <img src="https://img.icons8.com/isometric/100/delete-property.png" alt="Not Found Icon" class="mx-auto mb-4 animate-bounce"/>
-            තොරතුරු හමු නොවීය.
-          </div>
-        `;
-        return;
-      }
-
-      filtered.forEach((item, index) => {
-        const farmId = getFieldValue(item, ['Farm_ID', 'Farm ID', 'farm_id', 'farmid']);
-        const farmerName = getFieldValue(item, ['Famer_Name', 'Famer Name', 'famer_name', 'famername', 'Farmer_Name', 'Farmer Name']);
-        const address = getFieldValue(item, ['Address', 'address']);
-        const contactNo = getFieldValue(item, ['Contact_no', 'Contact No', 'contact_no', 'phone']);
-        
-        const milkProd = getFieldValue(item, [
-          'Milk_Production', 'Milk Production', 'Milk Prouction', 'Milk_Prouction', 
-          'milk_production', 'milk_prouction', 'Milk', 'milk'
-        ]);
-
-        const receiptNo = getFieldValue(item, [
-          'Receipt_no', 'Receipt No', 'Reeipt no', 'Reeipt_no', 
-          'receipt_no', 'receipt_num', 'Receipt', 'receipt'
-        ]);
-
-        const rawDateToBeCalved = getFieldValue(item, [
-          'Date_to_be_calved', 'Date to be calved', 'date_to_be_calved', 
-          'Date_To_Be_Calved', 'Expected_Calving_Date', 'Calving_Due_Date'
-        ]);
-
-        const formattedDate = formatDate(getFieldValue(item, ['Date', 'date']));
-        const formattedCalvingDate = formatDate(getFieldValue(item, ['Calving_Date_1', 'Calving Date 1', 'calving_date_1']));
-        const formattedDateToBeCalved = formatDate(rawDateToBeCalved);
-
-        const staggerDelay = Math.min(index * 70, 500);
-
-        const card = `
-          <div style="animation-delay: ${staggerDelay}ms" class="data-card bg-white p-6 rounded-2xl shadow-md border border-emerald-100 mb-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-emerald-100 pb-4">
-              <div>
-                <h2 class="text-2xl font-extrabold text-emerald-950">${farmerName || '-'}</h2>
-                <p class="text-sm text-gray-600 mt-1.5 flex items-center gap-2">
-                  <span class="bg-emerald-50 text-emerald-800 font-semibold px-3 py-1 rounded-lg border border-emerald-200">Farm ID: <span class="text-emerald-600 font-bold">${farmId || '-'}</span></span>
-                </p>
-              </div>
-              <div class="text-left md:text-right text-gray-700 bg-gradient-to-br from-emerald-50/90 to-teal-50/70 p-3.5 rounded-xl border border-emerald-200/70 text-sm space-y-1">
-                <p><strong>Address:</strong> ${address || '-'}</p>
-                <p><strong>Contact no:</strong> <a href="tel:${contactNo}" class="text-emerald-700 hover:text-emerald-900 hover:underline font-semibold transition">${contactNo || '-'}</a></p>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-sm bg-gradient-to-br from-emerald-50/75 via-green-50/45 to-teal-50/60 p-4 rounded-xl border border-emerald-200/60">
-              <p><strong>Date:</strong> <span class="font-semibold text-emerald-950">${formattedDate}</span></p>
-              <p><strong>Cow ID:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['Cow_ID', 'Cow ID', 'cow_id']) || '-'}</span></p>
-              <p><strong>No of calving:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['No_of_calving', 'No of calving', 'no_of_calving']) || '-'}</span></p>
-              <p><strong>Calving Date 1:</strong> <span class="font-semibold text-emerald-950">${formattedCalvingDate}</span></p>
-              <p><strong>Milk Production:</strong> <span class="font-semibold text-emerald-950">${milkProd ? milkProd + ' L' : '-'}</span></p>
-              <p><strong>Semen code:</strong> <span class="font-semibold text-emerald-950">${getFieldValue(item, ['Semen_code', 'Semen Code', 'semen_code']) || '-'}</span></p>
-              <p><strong>Receipt no:</strong> <span class="font-semibold text-emerald-950">${receiptNo || '-'}</span></p>
-              <p><strong>Date to be calved:</strong> <span class="font-semibold text-emerald-950">${formattedDateToBeCalved || '-'}</span></p>
-            </div>
-            
-            <div class="mt-4 pt-4 border-t border-emerald-100 flex flex-wrap gap-3 text-sm">
-              ${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo']) ? `<a href="${getFieldValue(item, ['Semen_deposit_photo', 'Semen Deposit Photo', 'semen_deposit_photo'])}" target="_blank" class="bg-emerald-50 text-emerald-800 font-semibold px-4 py-2 rounded-xl hover:bg-emerald-100 hover:-translate-y-0.5 transition duration-200 shadow-sm border border-emerald-200">Semen Deposit Photo බලන්න →</a>` : ''}
-              ${getFieldValue(item, ['pdf', 'PDF']) ? `<a href="${getFieldValue(item, ['pdf', 'PDF'])}" target="_blank" class="bg-teal-50 text-teal-800 font-semibold px-4 py-2 rounded-xl hover:bg-teal-100 hover:-translate-y-0.5 transition duration-200 shadow-sm border border-teal-200">PDF Document එක බලන්න →</a>` : ''}
-            </div>
-          </div>
-        `;
-        container.innerHTML += card;
-      });
-    }
-
-    function resetResultsIfEmpty() {
-      document.getElementById('resultsContainer').innerHTML = `
-        <div class="text-center p-16 bg-white/85 backdrop-blur-md rounded-2xl shadow-sm text-emerald-700/70 border border-emerald-200/80 transition-all duration-300">
-          <img src="https://img.icons8.com/isometric/100/search-property.png" alt="Search Property Icon" class="mx-auto mb-4 opacity-80 animate-float-slow"/>
-          <p class="font-medium">ඉහත කොටුවලට Farm ID එකක් හෝ ගොවිමහතාගේ නම ටයිප් කරන්න.</p>
-        </div>
-      `;
-    }
-
-    function resetSearch() {
-      document.getElementById('farmIdInput').value = "";
-      document.getElementById('farmerNameInput').value = "";
-      resetResultsIfEmpty();
-    }
-
-    loadData();
-  </script>
-</body>
-</html>
+      <p class="font-semibold animate-pulse">දත්ත පූරණය වෙමින් පවතී, කරුණාක
