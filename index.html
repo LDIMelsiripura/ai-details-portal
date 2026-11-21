@@ -438,7 +438,9 @@
 
     function renderFarmIdOptions(filterText = "") {
       const query = filterText.trim().toLowerCase();
-      const uniqueIds = [...new Set(aiRecords.map(getFarmId))].filter(Boolean);
+      const uniqueIds = [...new Set(aiRecords.map(getFarmId))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
       const matches = uniqueIds.filter(id => id.toLowerCase().includes(query));
 
       if (matches.length === 0) {
