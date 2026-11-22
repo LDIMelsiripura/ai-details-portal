@@ -30,7 +30,6 @@
       animation: fadeInDown 0.6s ease-out forwards;
     }
 
-    /* 3D Gold Animated Title Styles */
     .title-3d-wrapper {
       perspective: 900px;
     }
@@ -74,7 +73,6 @@
       }
     }
 
-    /* Embossed Navigation Bar & Buttons */
     .emboss-nav-shell {
       background: linear-gradient(145deg, #012119, #053b2c);
       border: 1.5px solid rgba(110, 231, 183, 0.35);
@@ -138,7 +136,6 @@
       border-bottom-width: 1px;
     }
 
-    /* Live Clock Box */
     .clock-widget {
       background-color: rgba(2, 44, 34, 0.75);
       border: 1.5px solid rgba(110, 231, 183, 0.5);
@@ -201,7 +198,6 @@
       animation: spinner 1.2s linear infinite;
     }
 
-    /* Footer Animations */
     .rich-footer {
       background: linear-gradient(120deg, #022c22 0%, #064e3b 45%, #047857 100%);
       border-top: 3px solid #10b981;
@@ -215,14 +211,8 @@
     }
 
     @keyframes footerFloatIn {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes creatorGlow {
@@ -268,7 +258,6 @@
   <header class="rich-header text-white p-4 md:p-5 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-4">
-        <!-- Live Clock Widget -->
         <div id="headerClock" class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
           <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300 clock-icon-pulse">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +284,6 @@
         </div>
       </div>
 
-      <!-- Embossed Navigation Menu -->
       <nav class="emboss-nav-shell flex flex-wrap items-center gap-2.5 p-2 rounded-2xl shrink-0">
         <a href="index.html" class="emboss-btn-secondary px-4 py-2.5 rounded-xl text-sm tracking-wide">
           කෘත්‍රිම සිංචන දත්ත
@@ -457,6 +445,8 @@
     const farmerNameToggleBtn = document.getElementById("farmerNameToggleBtn");
     const farmerNameDropdown = document.getElementById("farmerNameDropdown");
 
+    const farmCountBadge = document.getElementById("farmCountBadge");
+    const farmsContainer = document.getElementById("farmsContainer");
     const refreshBtn = document.getElementById("refreshBtn");
     const resetBtn = document.getElementById("resetBtn");
     const errorBox = document.getElementById("errorBox");
@@ -509,19 +499,25 @@
       const clean = String(rawId || "").trim();
       if (!clean) return "";
       if (/^farm\s*id\s*6130/i.test(clean)) {
-        return clean.replace(/^farm\s*id\s*6130/i, "Farm ID 6130");
+        return clean.replace(/^farm\s*id\s*6130/i, "Farm ID 6130").trim();
       }
       if (/^6130/i.test(clean)) {
-        return `Farm ID 6130${clean.slice(4)}`;
+        return `Farm ID 6130${clean.slice(4)}`.trim();
       }
-      return `Farm ID 6130 ${clean}`;
+      return `Farm ID 6130 ${clean}`.trim();
     }
 
     function isImageField(key, val) {
       const k = normalizeKey(key);
       const v = String(val || "").trim();
       if (!v) return false;
-      const keyLooksLikeImage = k === "image" || k.includes("image") || k.includes("photo") || k.includes("picture") || k.includes("පින්තූර") || k.includes("ඡායාරූප");
+      const keyLooksLikeImage =
+        k === "image" ||
+        k.includes("image") ||
+        k.includes("photo") ||
+        k.includes("picture") ||
+        k.includes("පින්තූර") ||
+        k.includes("ඡායාරූප");
       const valLooksLikeUrl = /^https?:\/\//i.test(v);
       return keyLooksLikeImage && valLooksLikeUrl;
     }
@@ -540,7 +536,7 @@
     }
 
     function openImageModal(imgSrc) {
-      if (imageModal && modalImg) {
+      if (imageModal && modalImg && imgSrc) {
         modalImg.src = imgSrc;
         imageModal.classList.remove("hidden");
       }
@@ -625,204 +621,4 @@
       return rows.slice(headerRowIndex + 1).map(row => {
         const obj = {};
         validIndices.forEach((colIdx, i) => {
-          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
-        });
-        return obj;
-      });
-    }
-
-    function findFieldValue(farm, matchers) {
-      const entries = Object.entries(farm);
-      for (const matcher of matchers) {
-        const found = entries.find(([k, v]) => String(v || "").trim() !== "" && matcher(normalizeKey(k)));
-        if (found) return String(found[1]).trim();
-      }
-      return "";
-    }
-
-    function getFarmIdVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "farm id" || n === "farm_id" || n === "id" || n.includes("ගොවිපල අංකය"),
-        n => n.includes("farm id") || n.includes("ගොවිපල")
-      ]);
-    }
-
-    function getFarmerNameVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "name of farmer" || n === "farmer name" || n === "famer name" || n === "farmer_name" || n === "name",
-        n => n.includes("name of farmer") || n.includes("farmer name") || n.includes("ගොවිමහතාගේ නම") || n.includes("ගොවියාගේ නම")
-      ]);
-    }
-
-    function getAddressVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "address" || n.includes("address") || n.includes("ලිපිනය")
-      ]);
-    }
-
-    function getContactNoVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "contact no" || n === "contact number" || n.includes("contact") || n.includes("phone") || n.includes("mobile") || n.includes("tel") || n.includes("දුරකථන")
-      ]);
-    }
-
-    function getLdiRangeVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "ldi range" || n.includes("ldi range") || n.includes("ldi")
-      ]);
-    }
-
-    function getGnDivisionVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "g/n division" || n === "gn division" || n.includes("g/n") || n.includes("gn division") || n.includes("ග්‍රාම")
-      ]);
-    }
-
-    function getTotalCattlesVal(farm) {
-      return findFieldValue(farm, [
-        n => n === "total no of cattles" || n === "total no of cattle" || n.includes("total no of cattl") || n.includes("cattles") || n.includes("cattle") || n.includes("ගව")
-      ]);
-    }
-
-    function getFarmImageUrl(farm) {
-      const entry = Object.entries(farm).find(([k, v]) => isImageField(k, v));
-      return entry ? formatImageUrl(entry[1]) : "";
-    }
-
-    // --- 1. Farm ID Dropdown (Sorted A-Z) ---
-    function renderFarmIdDropdown(filterText = "") {
-      if (!farmIdDropdown) return;
-      const q = filterText.trim().toLowerCase();
-
-      const matches = registeredFarms
-        .map(f => {
-          const rawId = getFarmIdVal(f);
-          return {
-            rawId,
-            formattedId: formatFarmId6130(rawId),
-            name: getFarmerNameVal(f)
-          };
-        })
-        .filter(item => item.rawId !== "")
-        .filter(item => {
-          if (!q) return true;
-          return (
-            item.rawId.toLowerCase().includes(q) ||
-            item.formattedId.toLowerCase().includes(q) ||
-            item.name.toLowerCase().includes(q)
-          );
-        })
-        .sort((a, b) => a.formattedId.localeCompare(b.formattedId, undefined, { numeric: true, sensitivity: "base" }));
-
-      if (matches.length === 0) {
-        farmIdDropdown.innerHTML = `
-          <div class="p-4 text-sm text-gray-500 font-medium">
-            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන Farm ID 6130 හමු නොවීය"}
-          </div>
-        `;
-      } else {
-        farmIdDropdown.innerHTML = matches.map(item => `
-          <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-3"
-               data-farm-id="${escapeHtml(item.formattedId)}"
-               data-farmer-name="${escapeHtml(item.name)}">
-            <span class="font-extrabold text-emerald-950 text-sm">${escapeHtml(item.formattedId)}</span>
-            <span class="text-xs font-semibold text-emerald-800 truncate">${escapeHtml(item.name || "-")}</span>
-          </div>
-        `).join("");
-      }
-
-      farmIdDropdown.classList.remove("hidden");
-      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
-    }
-
-    // --- 2. Name of Farmer Dropdown (Sorted A-Z) ---
-    function renderFarmerNameDropdown(filterText = "") {
-      if (!farmerNameDropdown) return;
-      const q = filterText.trim().toLowerCase();
-
-      const matches = registeredFarms
-        .map(f => {
-          const rawId = getFarmIdVal(f);
-          return {
-            formattedId: formatFarmId6130(rawId),
-            name: getFarmerNameVal(f)
-          };
-        })
-        .filter(item => item.name !== "")
-        .filter(item => {
-          if (!q) return true;
-          return item.name.toLowerCase().includes(q) || item.formattedId.toLowerCase().includes(q);
-        })
-        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
-
-      if (matches.length === 0) {
-        farmerNameDropdown.innerHTML = `
-          <div class="p-4 text-sm text-gray-500 font-medium">
-            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන ගොවියාගේ නම හමු නොවීය"}
-          </div>
-        `;
-      } else {
-        farmerNameDropdown.innerHTML = matches.map(item => `
-          <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-3"
-               data-farm-id="${escapeHtml(item.formattedId)}"
-               data-farmer-name="${escapeHtml(item.name)}">
-            <span class="font-extrabold text-emerald-950 text-sm truncate">${escapeHtml(item.name)}</span>
-            ${item.formattedId ? `
-              <span class="text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-full shrink-0">
-                ${escapeHtml(item.formattedId)}
-              </span>
-            ` : ""}
-          </div>
-        `).join("");
-      }
-
-      farmerNameDropdown.classList.remove("hidden");
-      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
-    }
-
-    function selectFarmPair(farmId, farmerName) {
-      if (farmIdInput) farmIdInput.value = farmId || "";
-      if (farmerNameInput) farmerNameInput.value = farmerName || "";
-      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
-      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
-      renderFarms();
-    }
-
-    if (farmIdInput) {
-      farmIdInput.addEventListener("focus", () => renderFarmIdDropdown(farmIdInput.value));
-      farmIdInput.addEventListener("click", () => renderFarmIdDropdown(farmIdInput.value));
-      farmIdInput.addEventListener("input", () => {
-        const val = farmIdInput.value.trim();
-        if (!val && farmerNameInput) {
-          farmerNameInput.value = "";
-        } else {
-          const exactMatch = registeredFarms.find(f => {
-            const raw = getFarmIdVal(f).toLowerCase();
-            const fmt = formatFarmId6130(getFarmIdVal(f)).toLowerCase();
-            return raw === val.toLowerCase() || fmt === val.toLowerCase();
-          });
-          if (exactMatch && farmerNameInput) {
-            farmerNameInput.value = getFarmerNameVal(exactMatch);
-          }
-        }
-        renderFarmIdDropdown(val);
-        renderFarms();
-      });
-    }
-
-    if (farmIdToggleBtn) {
-      farmIdToggleBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (!farmIdDropdown) return;
-        if (farmIdDropdown.classList.contains("hidden")) {
-          renderFarmIdDropdown(farmIdInput ? farmIdInput.value : "");
-          if (farmIdInput) farmIdInput.focus();
-        } else {
-          farmIdDropdown.classList.add("hidden");
-        }
-      });
-    }
-
-    if (farmIdDropdown) {
-      farmIdDropdown.addEventListener("click", (e) => {
-        const item = e.target.closest(".dropdown-item");
+          obj[headers[i
