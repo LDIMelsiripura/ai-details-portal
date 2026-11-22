@@ -316,6 +316,15 @@
       return !IGNORED_VALUES.includes(str.toLowerCase());
     }
 
+    function showInitialPromptState() {
+      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${aiRecords.length}`;
+      resultsContainer.innerHTML = `
+        <div class="bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300">
+          කෘත්‍රිම සිංචන තොරතුරු බැලීමට ඉහත කොටුවලින් <span class="text-emerald-700 underline">ගොවිපල අංකය (Farm ID)</span> හෝ <span class="text-emerald-700 underline">ගොවිමහතාගේ නම</span> තෝරන්න / ටයිප් කරන්න.
+        </div>
+      `;
+    }
+
     async function loadAllData() {
       loadingIndicator.classList.remove("hidden");
       errorBox.classList.add("hidden");
@@ -356,9 +365,9 @@
         if (aiRecords.length === 0) {
           errorBox.textContent = "Google Sheet එකෙහි දත්ත හමු නොවීය. කරුණාකර Sheet එක Publish කර ඇත්දැයි පරීක්ෂා කරන්න.";
           errorBox.classList.remove("hidden");
+        } else {
+          filterExactOrPartial(false);
         }
-
-        filterExactOrPartial(false);
       } catch (err) {
         console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
         errorBox.innerHTML = `
@@ -534,6 +543,12 @@
       const idQuery = farmIdInput.value.trim().toLowerCase();
       const nameQuery = farmerNameInput.value.trim().toLowerCase();
 
+      // කිසිවක් තෝරා හෝ ටයිප් කර නොමැති විට වාර්තා නොපෙන්වයි
+      if (!idQuery && !nameQuery) {
+        showInitialPromptState();
+        return;
+      }
+
       const filtered = aiRecords.filter(item => {
         const itemId = getFarmId(item).toLowerCase();
         const itemName = getFarmerName(item).toLowerCase();
@@ -681,7 +696,7 @@
       farmerNameInput.value = "";
       farmIdDropdown.classList.add("hidden");
       farmerNameDropdown.classList.add("hidden");
-      renderGroupedFarms(aiRecords);
+      showInitialPromptState();
     }
 
     document.addEventListener("click", (e) => {
