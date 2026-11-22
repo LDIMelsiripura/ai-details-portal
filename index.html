@@ -64,6 +64,70 @@
       }
     }
 
+    /* Embossed Navigation Bar & Buttons */
+    .emboss-nav-shell {
+      background: linear-gradient(145deg, #012119, #053b2c);
+      border: 1.5px solid rgba(110, 231, 183, 0.35);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.55),
+        inset 0 -1px 2px rgba(110, 231, 183, 0.25),
+        0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .emboss-btn-active {
+      background: linear-gradient(180deg, #fef3c7 0%, #fcd34d 45%, #f59e0b 100%);
+      color: #022c22;
+      font-weight: 900;
+      border-top: 1.5px solid #fffbeb;
+      border-left: 1px solid #fde68a;
+      border-right: 1px solid #b45309;
+      border-bottom: 3px solid #92400e;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+    }
+
+    .emboss-btn-active:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .emboss-btn-active:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .emboss-btn-secondary {
+      background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%);
+      color: #ecfdf5;
+      font-weight: 800;
+      border-top: 1.5px solid #6ee7b7;
+      border-left: 1px solid #34d399;
+      border-right: 1px solid #064e3b;
+      border-bottom: 3px solid #022c22;
+      text-shadow: 0 1px 2px rgba(2, 44, 34, 0.85);
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.35),
+        inset 0 1px 1px rgba(167, 243, 208, 0.55);
+      transition: all 0.2s ease;
+    }
+
+    .emboss-btn-secondary:hover {
+      background: linear-gradient(180deg, #34d399 0%, #10b981 52%, #059669 100%);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow:
+        0 6px 14px rgba(16, 185, 129, 0.35),
+        inset 0 1px 1px rgba(209, 250, 229, 0.7);
+    }
+
+    .emboss-btn-secondary:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
     /* Live Clock Box */
     .clock-widget {
       background-color: rgba(2, 44, 34, 0.75);
@@ -167,9 +231,14 @@
         </div>
       </div>
 
-      <nav class="flex items-center gap-2 bg-emerald-950/55 p-1.5 rounded-xl border border-emerald-300/30 shrink-0">
-        <a href="index.html" class="bg-gradient-to-r from-emerald-300 to-teal-200 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-sm">කෘත්‍රිම සිංචන දත්ත</a>
-        <a href="report.html" class="text-emerald-100 hover:bg-emerald-700/70 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm">Melsiripura LDI දත්ත</a>
+      <!-- Embossed Navigation Menu -->
+      <nav class="emboss-nav-shell flex flex-wrap items-center gap-2.5 p-2 rounded-2xl shrink-0">
+        <a href="index.html" class="emboss-btn-active px-4 py-2.5 rounded-xl text-sm tracking-wide">
+          කෘත්‍රිම සිංචන දත්ත
+        </a>
+        <a href="report.html" class="emboss-btn-secondary px-4 py-2.5 rounded-xl text-sm tracking-wide">
+          ලියාපදිංචි ගොවිපල විස්තර
+        </a>
       </nav>
     </div>
   </header>
@@ -680,4 +749,178 @@
 
     function onFarmerNameInput() {
       renderFarmerNameOptions(farmerNameInput.value);
-      filterExactOr
+      filterExactOrPartial(false);
+    }
+
+    function filterExactOrPartial(isExactSelection = false) {
+      const idQuery = farmIdInput.value.trim().toLowerCase();
+      const nameQuery = farmerNameInput.value.trim().toLowerCase();
+
+      if (!idQuery && !nameQuery) {
+        showInitialPromptState();
+        return;
+      }
+
+      const filtered = aiRecords.filter(item => {
+        const itemId = getFarmId(item).toLowerCase();
+        const itemName = getFarmerName(item).toLowerCase();
+
+        if (isExactSelection) {
+          return (idQuery && itemId === idQuery) || (nameQuery && itemName === nameQuery);
+        }
+        const matchesId = !idQuery || itemId.includes(idQuery);
+        const matchesName = !nameQuery || itemName.includes(nameQuery);
+        return matchesId && matchesName;
+      });
+
+      renderGroupedFarms(filtered);
+    }
+
+    function renderGroupedFarms(data) {
+      recordCountBadge.textContent = `පෙන්වන මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
+
+      if (!data.length) {
+        resultsContainer.innerHTML = `
+          <div class="bg-white/90 p-8 rounded-2xl text-center text-emerald-900 font-bold shadow">
+            සෙවුමට ගැලපෙන කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
+          </div>
+        `;
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(item => {
+        const fId = getFarmId(item);
+        const fName = getFarmerName(item);
+        const key = `${fId}__${fName}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            farmId: fId,
+            farmerName: fName,
+            address: "",
+            contactNo: "",
+            photoUrl: "",
+            records: []
+          };
+        }
+        if (!grouped[key].address && isMeaningfulValue(getAddress(item))) {
+          grouped[key].address = getAddress(item);
+        }
+        if (!grouped[key].contactNo && isMeaningfulValue(getContactNo(item))) {
+          grouped[key].contactNo = getContactNo(item);
+        }
+        if (!grouped[key].photoUrl && isMeaningfulValue(getPhotoRaw(item))) {
+          grouped[key].photoUrl = buildPhotoUrl(getPhotoRaw(item));
+        }
+        grouped[key].records.push(item);
+      });
+
+      resultsContainer.innerHTML = Object.values(grouped).map(group => {
+        const sortedRecords = group.records.sort((a, b) => getAiDate(b).localeCompare(getAiDate(a)));
+
+        const recordsCardsHtml = sortedRecords.map((rec, index) => {
+          const aiDate = getAiDate(rec) || `වාර්තාව #${index + 1}`;
+
+          const fieldsHtml = Object.entries(rec)
+            .filter(([k, v]) => {
+              if (isHiddenColumn(k)) return false;
+              return isMeaningfulValue(v);
+            })
+            .map(([k, v]) => `
+              <div class="flex justify-between items-start py-1.5 border-b border-emerald-100/80 last:border-b-0 text-sm gap-2">
+                <span class="font-semibold text-emerald-900">${k}:</span>
+                <span class="text-gray-800 text-right font-medium">${String(v).trim()}</span>
+              </div>
+            `).join("");
+
+          return `
+            <div class="bg-emerald-50/70 border border-emerald-300 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-emerald-200">
+                <span class="text-xs font-extrabold text-white bg-emerald-700 px-3 py-1 rounded-full">
+                  ${aiDate}
+                </span>
+                <span class="text-xs font-bold text-emerald-800">#${index + 1}</span>
+              </div>
+              <div class="space-y-0.5">
+                ${fieldsHtml || `<div class="text-xs text-gray-500 py-1">අමතර විස්තර නොමැත</div>`}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const photoHtml = group.photoUrl ? `
+          <div class="shrink-0">
+            <img
+              src="${escapeJsString(group.photoUrl)}"
+              alt="${escapeJsString(group.farmerName || "Photo")}"
+              referrerpolicy="no-referrer"
+              class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-emerald-500 shadow-md bg-emerald-50"
+              onerror="if (!this.dataset.triedFallback) { this.dataset.triedFallback = '1'; const m = this.src.match(/\\/d\\/([a-zA-Z0-9_-]+)/) || this.src.match(/\\/[d]\\/([a-zA-Z0-9_-]+)/) || this.src.match(/id=([a-zA-Z0-9_-]+)/); if (m) this.src = 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w400'; else this.parentElement.style.display='none'; } else { this.parentElement.style.display='none'; }"
+            />
+          </div>
+        ` : "";
+
+        return `
+          <div class="bg-white p-6 md:p-7 rounded-3xl shadow-xl border-l-8 border-emerald-700">
+            <!-- ඉහළ Header කොටස: Photo, Farm ID, Farmer Name, Address සහ Contact no -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 pb-4 border-b-2 border-emerald-200">
+              <div class="flex items-start sm:items-center gap-4">
+                ${photoHtml}
+                <div class="space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-2">
+                    ${group.farmId ? `
+                      <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
+                        Farm ID: ${group.farmId}
+                      </span>
+                    ` : ""}
+                  </div>
+                  <h3 class="text-xl md:text-2xl font-extrabold text-emerald-950">
+                    ${group.farmerName || "නම සඳහන් කර නැත"}
+                  </h3>
+                  <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-emerald-900 pt-1">
+                    ${group.address ? `
+                      <div><span class="font-bold text-emerald-800">Address:</span> <span class="font-medium text-gray-800">${group.address}</span></div>
+                    ` : ""}
+                    ${group.contactNo ? `
+                      <div><span class="font-bold text-emerald-800">Contact no:</span> <span class="font-medium text-gray-800">${group.contactNo}</span></div>
+                    ` : ""}
+                  </div>
+                </div>
+              </div>
+
+              <!-- අකුරු කළු පාට (text-black) කළ Badge එක -->
+              <div class="bg-emerald-200 text-black border border-emerald-500 px-4 py-2 rounded-2xl text-sm font-extrabold shadow self-start lg:self-center">
+                මුළු සිංචන වාර ගණන: ${sortedRecords.length}
+              </div>
+            </div>
+
+            <!-- එම ගොවියාගේ සියලුම දිනවල වාර්තා -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${recordsCardsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function resetSearch() {
+      farmIdInput.value = "";
+      farmerNameInput.value = "";
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      showInitialPromptState();
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#farmIdInput") && !e.target.closest("#farmIdDropdown")) {
+        farmIdDropdown.classList.add("hidden");
+      }
+      if (!e.target.closest("#farmerNameInput") && !e.target.closest("#farmerNameDropdown")) {
+        farmerNameDropdown.classList.add("hidden");
+      }
+    });
+
+    loadAllData();
+  </script>
+</body>
+</html>
