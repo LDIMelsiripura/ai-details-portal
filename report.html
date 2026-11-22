@@ -682,6 +682,12 @@
       ]);
     }
 
+    function getFarmTypeVal(farm) {
+      return findFieldValue(farm, [
+        n => n === "farm type" || n.includes("farm type") || n.includes("ගොවිපල වර්ගය")
+      ]);
+    }
+
     function getFarmImageUrl(farm) {
       const entry = Object.entries(farm).find(([k, v]) => isImageField(k, v));
       return entry ? formatImageUrl(entry[1]) : "";
@@ -952,32 +958,8 @@
         const ldiRange = getLdiRangeVal(farm);
         const gnDivision = getGnDivisionVal(farm);
         const totalCattles = getTotalCattlesVal(farm);
+        const farmType = getFarmTypeVal(farm);
         const imageUrl = getFarmImageUrl(farm);
-
-        const skipKeys = [
-          "farm id", "farm_id", "id", "ගොවිපල අංකය",
-          "name of farmer", "farmer name", "famer name", "farmer_name", "name", "ගොවිමහතාගේ නම", "ගොවියාගේ නම",
-          "address", "ලිපිනය",
-          "contact no", "contact number", "phone", "mobile", "tel", "දුරකථන",
-          "ldi range", "ldi",
-          "g/n division", "gn division", "ග්‍රාම",
-          "total no of cattles", "total no of cattle"
-        ];
-
-        const extraFieldsHtml = Object.entries(farm)
-          .filter(([k, v]) => {
-            const nk = normalizeKey(k);
-            const val = String(v || "").trim();
-            if (!val || val === "-" || val.toLowerCase() === "n/a") return false;
-            if (isImageField(k, v)) return false;
-            return !skipKeys.some(sk => nk === sk || nk.includes(sk));
-          })
-          .map(([k, v]) => `
-            <div class="flex justify-between items-start py-1.5 border-b border-emerald-100 last:border-b-0 text-sm gap-2">
-              <span class="font-semibold text-emerald-900">${escapeHtml(k)}:</span>
-              <span class="text-gray-800 text-right font-medium">${escapeHtml(v)}</span>
-            </div>
-          `).join("");
 
         return `
           <div class="bg-white rounded-3xl shadow-xl border-t-8 border-emerald-700 overflow-hidden flex flex-col justify-between data-card">
@@ -1040,14 +1022,19 @@
                     </div>
                   ` : ""}
 
+                  ${farmType ? `
+                    <div class="flex justify-between items-center gap-2 py-1 border-b border-emerald-50">
+                      <span class="font-bold text-emerald-800 shrink-0">Farm Type:</span>
+                      <span class="text-gray-800 font-semibold">${escapeHtml(farmType)}</span>
+                    </div>
+                  ` : ""}
+
                   ${totalCattles ? `
                     <div class="flex justify-between items-center gap-2 py-1.5 px-3 bg-emerald-50 rounded-xl border border-emerald-200 mt-2">
                       <span class="font-extrabold text-emerald-950">Total No of Cattles:</span>
                       <span class="font-extrabold text-emerald-900 text-base">${escapeHtml(totalCattles)}</span>
                     </div>
                   ` : ""}
-
-                  ${extraFieldsHtml}
                 </div>
               </div>
             </div>
@@ -1080,21 +1067,4 @@
       } catch (err) {
         console.error("Error loading registered farms:", err);
         if (errorBox) {
-          errorBox.innerHTML = `
-            Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය. <br>
-            <span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කර Refresh බොත්තම ඔබන්න.</span>
-          `;
-          errorBox.classList.remove("hidden");
-        }
-      } finally {
-        if (loadingIndicator) {
-          loadingIndicator.classList.add("hidden");
-          loadingIndicator.classList.remove("flex");
-        }
-      }
-    }
-
-    loadRegisteredFarmsFromUrl();
-  </script>
-</body>
-</html>
+          errorBox.inner
