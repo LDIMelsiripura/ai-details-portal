@@ -30,6 +30,114 @@
       animation: fadeInDown 0.6s ease-out forwards;
     }
 
+    /* 3D Gold Animated Title Styles */
+    .title-3d-wrapper {
+      perspective: 900px;
+    }
+
+    .title-3d-animated {
+      font-size: clamp(1.25rem, 2.2vw, 1.95rem);
+      font-weight: 900;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+      background: linear-gradient(180deg, #fffbeb 0%, #fde68a 32%, #fbbf24 68%, #d97706 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter:
+        drop-shadow(0 1px 0 #b45309)
+        drop-shadow(0 2px 0 #92400e)
+        drop-shadow(0 3px 0 #78350f)
+        drop-shadow(0 4px 0 #022c22)
+        drop-shadow(0 8px 16px rgba(245, 158, 11, 0.45));
+      transform-style: preserve-3d;
+      animation: title3DGoldFloat 4.2s ease-in-out infinite;
+    }
+
+    @keyframes title3DGoldFloat {
+      0%, 100% {
+        transform: rotateX(4deg) rotateY(-2deg) translateY(0px) scale(1);
+        filter:
+          drop-shadow(0 1px 0 #b45309)
+          drop-shadow(0 2px 0 #92400e)
+          drop-shadow(0 3px 0 #78350f)
+          drop-shadow(0 4px 0 #022c22)
+          drop-shadow(0 8px 16px rgba(245, 158, 11, 0.45));
+      }
+      50% {
+        transform: rotateX(-3deg) rotateY(2deg) translateY(-3px) scale(1.015);
+        filter:
+          drop-shadow(0 1px 0 #f59e0b)
+          drop-shadow(0 3px 0 #b45309)
+          drop-shadow(0 5px 0 #78350f)
+          drop-shadow(0 6px 0 #022c22)
+          drop-shadow(0 14px 24px rgba(251, 191, 36, 0.72));
+      }
+    }
+
+    /* Embossed Navigation Bar & Buttons */
+    .emboss-nav-shell {
+      background: linear-gradient(145deg, #012119, #053b2c);
+      border: 1.5px solid rgba(110, 231, 183, 0.35);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.55),
+        inset 0 -1px 2px rgba(110, 231, 183, 0.25),
+        0 6px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .emboss-btn-active {
+      background: linear-gradient(180deg, #fef3c7 0%, #fcd34d 45%, #f59e0b 100%);
+      color: #022c22;
+      font-weight: 900;
+      border-top: 1.5px solid #fffbeb;
+      border-left: 1px solid #fde68a;
+      border-right: 1px solid #b45309;
+      border-bottom: 3px solid #92400e;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.4),
+        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      transition: all 0.2s ease;
+    }
+
+    .emboss-btn-active:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .emboss-btn-active:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .emboss-btn-secondary {
+      background: linear-gradient(180deg, #10b981 0%, #059669 52%, #047857 100%);
+      color: #ecfdf5;
+      font-weight: 800;
+      border-top: 1.5px solid #6ee7b7;
+      border-left: 1px solid #34d399;
+      border-right: 1px solid #064e3b;
+      border-bottom: 3px solid #022c22;
+      text-shadow: 0 1px 2px rgba(2, 44, 34, 0.85);
+      box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.35),
+        inset 0 1px 1px rgba(167, 243, 208, 0.55);
+      transition: all 0.2s ease;
+    }
+
+    .emboss-btn-secondary:hover {
+      background: linear-gradient(180deg, #34d399 0%, #10b981 52%, #059669 100%);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow:
+        0 6px 14px rgba(16, 185, 129, 0.35),
+        inset 0 1px 1px rgba(209, 250, 229, 0.7);
+    }
+
+    .emboss-btn-secondary:active {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
     /* Live Clock Box */
     .clock-widget {
       background-color: rgba(2, 44, 34, 0.75);
@@ -157,9 +265,9 @@
 <body class="min-h-screen text-gray-800 flex flex-col custom-scrollbar">
 
   <!-- Header -->
-  <header class="rich-header text-white p-4 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="flex flex-wrap items-center gap-3.5">
+  <header class="rich-header text-white p-4 md:p-5 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-4">
         <!-- Live Clock Widget -->
         <div id="headerClock" class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
           <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300 clock-icon-pulse">
@@ -177,19 +285,24 @@
           </div>
         </div>
 
-        <div>
-          <span class="inline-block text-xs uppercase tracking-wider font-bold text-emerald-200 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-400/30 mb-1">
+        <div class="title-3d-wrapper">
+          <span class="inline-block text-xs uppercase tracking-wider font-bold text-amber-200 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-amber-300/35 mb-1.5">
             Ibbagamuwa Veterinary Office
           </span>
-          <h1 class="text-lg md:text-xl font-extrabold tracking-wide text-white">
+          <h1 class="title-3d-animated">
             ලියාපදිංචි ගොවිපල විස්තර (Registered Farm details) - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය
           </h1>
         </div>
       </div>
 
-      <nav class="flex items-center gap-2 bg-emerald-950/55 p-1.5 rounded-xl border border-emerald-300/30">
-        <a href="index.html" class="text-emerald-100 hover:bg-emerald-700/70 hover:text-white font-semibold px-4 py-2 rounded-lg text-sm transition">කෘත්‍රිම සිංචන දත්ත</a>
-        <a href="report.html" class="bg-gradient-to-r from-emerald-300 to-teal-200 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-sm transition">Melsiripura LDI දත්ත</a>
+      <!-- Embossed Navigation Menu -->
+      <nav class="emboss-nav-shell flex flex-wrap items-center gap-2.5 p-2 rounded-2xl shrink-0">
+        <a href="index.html" class="emboss-btn-secondary px-4 py-2.5 rounded-xl text-sm tracking-wide">
+          කෘත්‍රිම සිංචන දත්ත
+        </a>
+        <a href="report.html" class="emboss-btn-active px-4 py-2.5 rounded-xl text-sm tracking-wide">
+          ලියාපදිංචි ගොවිපල විස්තර
+        </a>
       </nav>
     </div>
   </header>
@@ -347,6 +460,7 @@
     const refreshBtn = document.getElementById("refreshBtn");
     const resetBtn = document.getElementById("resetBtn");
     const errorBox = document.getElementById("errorBox");
+    const loadingIndicator = document.getElementById("loadingIndicator");
     const imageModal = document.getElementById("imageModal");
     const modalImg = document.getElementById("modalImg");
     const closeImageModalBtn = document.getElementById("closeImageModalBtn");
@@ -523,7 +637,6 @@
         const found = entries.find(([k, v]) => String(v || "").trim() !== "" && matcher(normalizeKey(k)));
         if (found) return String(found[1]).trim();
       }
-      const fallback = entries.find(([, v]) => String(v || "").trim() !== "");
       return "";
     }
 
@@ -569,6 +682,11 @@
       return findFieldValue(farm, [
         n => n === "total no of cattles" || n === "total no of cattle" || n.includes("total no of cattl") || n.includes("cattles") || n.includes("cattle") || n.includes("ගව")
       ]);
+    }
+
+    function getFarmImageUrl(farm) {
+      const entry = Object.entries(farm).find(([k, v]) => isImageField(k, v));
+      return entry ? formatImageUrl(entry[1]) : "";
     }
 
     // --- 1. Farm ID Dropdown (Sorted A-Z) ---
@@ -708,242 +826,3 @@
     if (farmIdDropdown) {
       farmIdDropdown.addEventListener("click", (e) => {
         const item = e.target.closest(".dropdown-item");
-        if (!item) return;
-        selectFarmPair(item.dataset.farmId || "", item.dataset.farmerName || "");
-      });
-    }
-
-    if (farmerNameInput) {
-      farmerNameInput.addEventListener("focus", () => renderFarmerNameDropdown(farmerNameInput.value));
-      farmerNameInput.addEventListener("click", () => renderFarmerNameDropdown(farmerNameInput.value));
-      farmerNameInput.addEventListener("input", () => {
-        const val = farmerNameInput.value.trim();
-        if (!val && farmIdInput) {
-          farmIdInput.value = "";
-        } else {
-          const exactMatch = registeredFarms.find(f => getFarmerNameVal(f).toLowerCase() === val.toLowerCase());
-          if (exactMatch && farmIdInput) {
-            farmIdInput.value = formatFarmId6130(getFarmIdVal(exactMatch));
-          }
-        }
-        renderFarmerNameDropdown(val);
-        renderFarms();
-      });
-    }
-
-    if (farmerNameToggleBtn) {
-      farmerNameToggleBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (!farmerNameDropdown) return;
-        if (farmerNameDropdown.classList.contains("hidden")) {
-          renderFarmerNameDropdown(farmerNameInput ? farmerNameInput.value : "");
-          if (farmerNameInput) farmerNameInput.focus();
-        } else {
-          farmerNameDropdown.classList.add("hidden");
-        }
-      });
-    }
-
-    if (farmerNameDropdown) {
-      farmerNameDropdown.addEventListener("click", (e) => {
-        const item = e.target.closest(".dropdown-item");
-        if (!item) return;
-        selectFarmPair(item.dataset.farmId || "", item.dataset.farmerName || "");
-      });
-    }
-
-    document.addEventListener("click", (e) => {
-      if (farmIdWrapper && !farmIdWrapper.contains(e.target) && farmIdDropdown) {
-        farmIdDropdown.classList.add("hidden");
-      }
-      if (farmerNameWrapper && !farmerNameWrapper.contains(e.target) && farmerNameDropdown) {
-        farmerNameDropdown.classList.add("hidden");
-      }
-    });
-
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        if (farmIdInput) farmIdInput.value = "";
-        if (farmerNameInput) farmerNameInput.value = "";
-        if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
-        if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
-        renderFarms();
-      });
-    }
-
-    if (refreshBtn) {
-      refreshBtn.addEventListener("click", () => loadRegisteredFarmsFromUrl());
-    }
-
-    function showInitialEmptyPrompt() {
-      const container = document.getElementById("farmsContainer");
-      const badge = document.getElementById("farmCountBadge");
-
-      if (badge) {
-        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${registeredFarms.length}`;
-      }
-
-      if (!container) return;
-
-      container.innerHTML = `
-        <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
-          ලියාපදිංචි ගොවිපල විස්තර බැලීමට ඉහත කොටු වලින් <span class="text-emerald-700 underline">Farm ID 6130</span> හෝ <span class="text-emerald-700 underline">Name of Farmer</span> තෝරන්න.
-        </div>
-      `;
-    }
-
-    function renderFarms() {
-      const idQuery = (farmIdInput?.value || "").trim().toLowerCase();
-      const nameQuery = (farmerNameInput?.value || "").trim().toLowerCase();
-      const container = document.getElementById("farmsContainer");
-      const badge = document.getElementById("farmCountBadge");
-
-      if (!idQuery && !nameQuery) {
-        showInitialEmptyPrompt();
-        return;
-      }
-
-      const filtered = registeredFarms.filter(item => {
-        const rawId = getFarmIdVal(item).toLowerCase();
-        const fmtId = formatFarmId6130(getFarmIdVal(item)).toLowerCase();
-        const name = getFarmerNameVal(item).toLowerCase();
-        const matchId = !idQuery || rawId.includes(idQuery) || fmtId.includes(idQuery);
-        const matchName = !nameQuery || name.includes(nameQuery);
-        return matchId && matchName;
-      });
-
-      if (badge) {
-        badge.textContent = `ගැලපෙන ගොවිපලවල්: ${filtered.length} / ${registeredFarms.length}`;
-      }
-
-      if (!container) return;
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
-            සෙවුමට ගැලපෙන ගොවිපල දත්ත හමු නොවීය.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.map((farm, idx) => {
-        const imageEntries = Object.entries(farm).filter(
-          ([k, v]) => v !== null && v !== undefined && String(v).trim() !== "" && isImageField(k, v)
-        );
-
-        const imagesHtml = imageEntries.map(([k, v]) => {
-          const rawUrl = String(v).trim();
-          const displayUrl = formatImageUrl(rawUrl);
-          return `
-            <div class="mb-4">
-              <div class="text-xs font-bold text-emerald-900 mb-1.5">${escapeHtml(k)}:</div>
-              <div class="relative overflow-hidden rounded-2xl border-2 border-emerald-200 bg-emerald-50">
-                <img
-                  src="${escapeHtml(displayUrl)}"
-                  alt="${escapeHtml(k)}"
-                  loading="lazy"
-                  referrerpolicy="no-referrer"
-                  data-full-img="${escapeHtml(displayUrl)}"
-                  class="farm-preview-img w-full h-56 object-cover cursor-pointer hover:scale-105 transition duration-300"
-                >
-                <div class="hidden p-4 text-center text-xs text-emerald-900">
-                  පින්තූරය පූරණය කළ නොහැක.
-                  <a href="${escapeHtml(rawUrl)}" target="_blank" rel="noopener noreferrer" class="underline font-bold text-emerald-700 ml-1">
-                    පින්තූරය විවෘත කරන්න
-                  </a>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        const allowedFields = [
-          { label: "Name of Farmer", value: getFarmerNameVal(farm) },
-          { label: "Address", value: getAddressVal(farm) },
-          { label: "Contact no", value: getContactNoVal(farm) },
-          { label: "Farm ID", value: formatFarmId6130(getFarmIdVal(farm)) },
-          { label: "LDI Range", value: getLdiRangeVal(farm) },
-          { label: "G/N Division", value: getGnDivisionVal(farm) },
-          { label: "Total No of Cattles", value: getTotalCattlesVal(farm) }
-        ].filter(row => row.value !== "");
-
-        const entriesHtml = allowedFields.map(row => `
-          <div class="flex justify-between items-start py-1.5 border-b border-emerald-100 last:border-b-0 text-sm gap-2">
-            <span class="font-semibold text-emerald-900">${escapeHtml(row.label)}:</span>
-            <span class="text-gray-800 text-right font-medium">${escapeHtml(row.value)}</span>
-          </div>
-        `).join("");
-
-        return `
-          <div class="data-card bg-white p-6 rounded-3xl shadow-lg border-l-8 border-emerald-700" style="animation-delay: ${Math.min(idx * 0.04, 0.4)}s;">
-            ${imagesHtml}
-            <div class="space-y-1">${entriesHtml}</div>
-          </div>
-        `;
-      }).join("");
-
-      container.querySelectorAll(".farm-preview-img").forEach(img => {
-        img.addEventListener("click", () => openImageModal(img.dataset.fullImg || img.src));
-        img.addEventListener("error", () => {
-          img.style.display = "none";
-          if (img.nextElementSibling) img.nextElementSibling.classList.remove("hidden");
-        });
-      });
-    }
-
-    async function loadRegisteredFarmsFromUrl() {
-      const loader = document.getElementById("loadingIndicator");
-      const container = document.getElementById("farmsContainer");
-
-      if (errorBox) errorBox.classList.add("hidden");
-      if (container) container.innerHTML = "";
-      if (loader) {
-        loader.classList.remove("hidden");
-        loader.classList.add("flex");
-      }
-
-      try {
-        const response = await fetch(`${FARM_DATA_URL}&t=${Date.now()}`);
-        if (!response.ok) {
-          throw new Error(`HTTP Error: ${response.status}`);
-        }
-
-        const csvText = await response.text();
-        registeredFarms = parseCSVProperly(csvText).filter(
-          row => getFarmIdVal(row) !== "" || getFarmerNameVal(row) !== ""
-        );
-
-        if (registeredFarms.length === 0) {
-          if (errorBox) {
-            errorBox.textContent = "Google Sheet එකෙහි ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය. කරුණාකර Sheet එක Publish කර ඇත්දැයි පරීක්ෂා කරන්න.";
-            errorBox.classList.remove("hidden");
-          }
-          if (container) container.innerHTML = "";
-          if (document.getElementById("farmCountBadge")) {
-            document.getElementById("farmCountBadge").textContent = "ලියාපදිංචි ගොවිපලවල්: 0";
-          }
-        } else {
-          renderFarms();
-        }
-      } catch (err) {
-        console.error("ලියාපදිංචි ගොවිපල දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
-        if (errorBox) {
-          errorBox.innerHTML = `
-            ලියාපදිංචි ගොවිපල දත්ත ලබාගැනීමට නොහැකි විය. <br>
-            <span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කරන්න, නැතහොත් මෙම HTML ගොනුව Live Server / Hosting හරහා විවෘත කරන්න.</span>
-          `;
-          errorBox.classList.remove("hidden");
-        }
-      } finally {
-        if (loader) {
-          loader.classList.add("hidden");
-          loader.classList.remove("flex");
-        }
-      }
-    }
-
-    loadRegisteredFarmsFromUrl();
-  </script>
-</body>
-</html>
