@@ -71,7 +71,7 @@
     }
 
     .dropdown-menu {
-      max-height: 380px;
+      max-height: 320px;
       overflow-y: auto;
       z-index: 999;
       animation: fadeInDown 0.2s ease-out forwards;
@@ -168,29 +168,29 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        ලියාපදිංචි ගොවිපල අංකය හෝ ගොවියාගේ නම (Name of Farmer) තෝරන්න / සොයන්න
+        ලියාපදිංචි ගොවිපල අංකය (Farm ID) හෝ ගොවියාගේ නම (Name of Farmer) තෝරන්න
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-        <!-- Farm ID / Name of Farmer Dropdown Input -->
+        <!-- 1. Farm ID Dropdown Window -->
         <div class="relative">
-          <label for="farmSearchInput" class="block text-sm font-bold text-emerald-950 mb-2">
-            ගොවිපල අංකය / ගොවියාගේ නම (Farm ID / Name of Farmer):
+          <label for="farmIdInput" class="block text-sm font-bold text-emerald-950 mb-2">
+            ගොවිපල අංකය (Farm ID):
           </label>
           <div class="relative">
             <input
               type="text"
-              id="farmSearchInput"
-              placeholder="Name of Farmer හෝ Farm ID තෝරන්න / ටයිප් කරන්න..."
-              onfocus="showFarmDropdown()"
-              oninput="onFarmSearchInput()"
+              id="farmIdInput"
+              placeholder="Farm ID තෝරන්න / ටයිප් කරන්න..."
+              onfocus="showFarmIdDropdown()"
+              oninput="onFarmIdInput()"
               class="w-full p-4 pr-11 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm transition"
               autocomplete="off"
             >
             <button
               type="button"
-              onclick="toggleFarmDropdown()"
-              aria-label="Toggle Farm Dropdown"
+              onclick="toggleFarmIdDropdown()"
+              aria-label="Toggle Farm ID Dropdown"
               class="absolute inset-y-0 right-0 px-3 flex items-center text-emerald-800 hover:text-emerald-950"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,24 +198,55 @@
               </svg>
             </button>
           </div>
-          <div id="farmSearchDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl custom-scrollbar"></div>
+          <div id="farmIdDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl custom-scrollbar"></div>
         </div>
 
-        <div class="flex flex-wrap items-end justify-between md:justify-end gap-3">
-          <div id="farmCountBadge" class="text-sm font-bold text-emerald-950 bg-white/85 px-4 py-3 rounded-xl border border-emerald-400 shadow-sm">
-            ලියාපදිංචි ගොවිපලවල්: 0
+        <!-- 2. Name of Farmer Dropdown Window -->
+        <div class="relative">
+          <label for="farmerNameInput" class="block text-sm font-bold text-emerald-950 mb-2">
+            ගොවියාගේ නම (Name of Farmer):
+          </label>
+          <div class="relative">
+            <input
+              type="text"
+              id="farmerNameInput"
+              placeholder="Name of Farmer තෝරන්න / ටයිප් කරන්න..."
+              onfocus="showFarmerNameDropdown()"
+              oninput="onFarmerNameInput()"
+              class="w-full p-4 pr-11 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm transition"
+              autocomplete="off"
+            >
+            <button
+              type="button"
+              onclick="toggleFarmerNameDropdown()"
+              aria-label="Toggle Farmer Name Dropdown"
+              class="absolute inset-y-0 right-0 px-3 flex items-center text-emerald-800 hover:text-emerald-950"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
           </div>
+          <div id="farmerNameDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl custom-scrollbar"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-emerald-300/70">
+        <div id="farmCountBadge" class="text-sm font-bold text-emerald-950 bg-white/85 px-4 py-2.5 rounded-xl border border-emerald-400 shadow-sm">
+          ලියාපදිංචි ගොවිපලවල්: 0
+        </div>
+        <div class="flex items-center gap-3">
           <button
             type="button"
             onclick="loadRegisteredFarmsFromUrl()"
-            class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-4 py-3 rounded-xl text-sm transition duration-300 shadow border border-emerald-400"
+            class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-4 py-2.5 rounded-xl text-sm transition duration-300 shadow border border-emerald-400"
           >
             Refresh
           </button>
           <button
             type="button"
             onclick="resetFarmSearch()"
-            class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-5 py-3 rounded-xl text-sm transition duration-300 shadow-md"
+            class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition duration-300 shadow-md"
           >
             Reset
           </button>
@@ -241,8 +272,13 @@
 
     const liveTimeEl = document.getElementById("liveTime");
     const liveDateEl = document.getElementById("liveDate");
-    const farmSearchInput = document.getElementById("farmSearchInput");
-    const farmSearchDropdown = document.getElementById("farmSearchDropdown");
+
+    const farmIdInput = document.getElementById("farmIdInput");
+    const farmIdDropdown = document.getElementById("farmIdDropdown");
+
+    const farmerNameInput = document.getElementById("farmerNameInput");
+    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
+
     const errorBox = document.getElementById("errorBox");
 
     function updateLiveClock() {
@@ -299,3 +335,356 @@
         } else if ((char === "\r" || char === "\n") && !insideQuotes) {
           if (char === "\r" && nextChar === "\n") i++;
           currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return [];
+
+      let headerRowIndex = rows.findIndex(r =>
+        r.some(cell => {
+          const n = normalizeKey(cell);
+          return (
+            n.includes("name of farmer") ||
+            n.includes("farmer name") ||
+            n.includes("farm id") ||
+            n.includes("ගොවිමහතාගේ නම") ||
+            n.includes("ගොවිපල අංකය")
+          );
+        })
+      );
+      if (headerRowIndex === -1) headerRowIndex = 0;
+
+      const rawHeaders = rows[headerRowIndex];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").replace(/\s+/g, " ").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      return rows.slice(headerRowIndex + 1).map(row => {
+        const obj = {};
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
+        });
+        return obj;
+      });
+    }
+
+    function getFarmIdVal(farm) {
+      const key = Object.keys(farm).find(k => {
+        const n = normalizeKey(k);
+        return n === "farm id" || n === "farm_id" || n === "id" || n.includes("ගොවිපල අංකය");
+      });
+      return key ? String(farm[key] || "").trim() : "";
+    }
+
+    function getFarmerNameVal(farm) {
+      const key = Object.keys(farm).find(k => {
+        const n = normalizeKey(k);
+        return (
+          n === "name of farmer" ||
+          n === "farmer name" ||
+          n === "famer name" ||
+          n === "farmer_name" ||
+          n === "name" ||
+          n.includes("name of farmer") ||
+          n.includes("farmer name") ||
+          n.includes("ගොවිමහතාගේ නම") ||
+          n.includes("ගොවියාගේ නම")
+        );
+      });
+      return key ? String(farm[key] || "").trim() : "";
+    }
+
+    function escapeJs(str) {
+      return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    // --- 1. Farm ID Dropdown Logic (Sorted A-Z) ---
+    function renderFarmIdDropdown(filterText = "") {
+      if (!farmIdDropdown) return;
+      const q = filterText.trim().toLowerCase();
+
+      const matches = registeredFarms
+        .map(f => ({ id: getFarmIdVal(f), name: getFarmerNameVal(f) }))
+        .filter(item => item.id !== "")
+        .filter(item => {
+          if (!q) return true;
+          return item.id.toLowerCase().includes(q) || item.name.toLowerCase().includes(q);
+        })
+        .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true, sensitivity: "base" }));
+
+      if (matches.length === 0) {
+        farmIdDropdown.innerHTML = `
+          <div class="p-4 text-sm text-gray-500 font-medium">
+            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන Farm ID හමු නොවීය"}
+          </div>
+        `;
+      } else {
+        farmIdDropdown.innerHTML = matches.map(item => `
+          <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-3"
+               onclick="selectByFarmId('${escapeJs(item.id)}', '${escapeJs(item.name)}')">
+            <span class="font-extrabold text-emerald-950 text-sm">${item.id}</span>
+            <span class="text-xs font-semibold text-emerald-800 truncate">${item.name || "-"}</span>
+          </div>
+        `).join("");
+      }
+
+      farmIdDropdown.classList.remove("hidden");
+      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
+    }
+
+    function showFarmIdDropdown() {
+      renderFarmIdDropdown(farmIdInput ? farmIdInput.value : "");
+    }
+
+    function toggleFarmIdDropdown() {
+      if (!farmIdDropdown) return;
+      if (farmIdDropdown.classList.contains("hidden")) {
+        showFarmIdDropdown();
+        if (farmIdInput) farmIdInput.focus();
+      } else {
+        farmIdDropdown.classList.add("hidden");
+      }
+    }
+
+    function selectByFarmId(farmId, farmerName) {
+      if (farmIdInput) farmIdInput.value = farmId;
+      if (farmerNameInput) farmerNameInput.value = farmerName;
+      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
+      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
+      renderFarms();
+    }
+
+    function onFarmIdInput() {
+      const val = (farmIdInput?.value || "").trim();
+      if (!val && farmerNameInput) {
+        farmerNameInput.value = "";
+      } else {
+        const exactMatch = registeredFarms.find(f => getFarmIdVal(f).toLowerCase() === val.toLowerCase());
+        if (exactMatch && farmerNameInput) {
+          farmerNameInput.value = getFarmerNameVal(exactMatch);
+        }
+      }
+      renderFarmIdDropdown(val);
+      renderFarms();
+    }
+
+    // --- 2. Name of Farmer Dropdown Logic (Sorted A-Z) ---
+    function renderFarmerNameDropdown(filterText = "") {
+      if (!farmerNameDropdown) return;
+      const q = filterText.trim().toLowerCase();
+
+      const matches = registeredFarms
+        .map(f => ({ id: getFarmIdVal(f), name: getFarmerNameVal(f) }))
+        .filter(item => item.name !== "")
+        .filter(item => {
+          if (!q) return true;
+          return item.name.toLowerCase().includes(q) || item.id.toLowerCase().includes(q);
+        })
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: "base" }));
+
+      if (matches.length === 0) {
+        farmerNameDropdown.innerHTML = `
+          <div class="p-4 text-sm text-gray-500 font-medium">
+            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන ගොවියාගේ නම හමු නොවීය"}
+          </div>
+        `;
+      } else {
+        farmerNameDropdown.innerHTML = matches.map(item => `
+          <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-3"
+               onclick="selectByFarmerName('${escapeJs(item.name)}', '${escapeJs(item.id)}')">
+            <span class="font-extrabold text-emerald-950 text-sm truncate">${item.name}</span>
+            ${item.id ? `
+              <span class="text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-full shrink-0">
+                ${item.id}
+              </span>
+            ` : ""}
+          </div>
+        `).join("");
+      }
+
+      farmerNameDropdown.classList.remove("hidden");
+      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
+    }
+
+    function showFarmerNameDropdown() {
+      renderFarmerNameDropdown(farmerNameInput ? farmerNameInput.value : "");
+    }
+
+    function toggleFarmerNameDropdown() {
+      if (!farmerNameDropdown) return;
+      if (farmerNameDropdown.classList.contains("hidden")) {
+        showFarmerNameDropdown();
+        if (farmerNameInput) farmerNameInput.focus();
+      } else {
+        farmerNameDropdown.classList.add("hidden");
+      }
+    }
+
+    function selectByFarmerName(farmerName, farmId) {
+      if (farmerNameInput) farmerNameInput.value = farmerName;
+      if (farmIdInput) farmIdInput.value = farmId;
+      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
+      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
+      renderFarms();
+    }
+
+    function onFarmerNameInput() {
+      const val = (farmerNameInput?.value || "").trim();
+      if (!val && farmIdInput) {
+        farmIdInput.value = "";
+      } else {
+        const exactMatch = registeredFarms.find(f => getFarmerNameVal(f).toLowerCase() === val.toLowerCase());
+        if (exactMatch && farmIdInput) {
+          farmIdInput.value = getFarmIdVal(exactMatch);
+        }
+      }
+      renderFarmerNameDropdown(val);
+      renderFarms();
+    }
+
+    function resetFarmSearch() {
+      if (farmIdInput) farmIdInput.value = "";
+      if (farmerNameInput) farmerNameInput.value = "";
+      if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
+      if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
+      renderFarms();
+    }
+
+    function showInitialEmptyPrompt() {
+      const container = document.getElementById("farmsContainer");
+      const badge = document.getElementById("farmCountBadge");
+
+      if (badge) {
+        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${registeredFarms.length}`;
+      }
+
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
+          ලියාපදිංචි ගොවිපල විස්තර බැලීමට ඉහත කොටු වලින් <span class="text-emerald-700 underline">Farm ID</span> හෝ <span class="text-emerald-700 underline">Name of Farmer</span> තෝරන්න.
+        </div>
+      `;
+    }
+
+    function renderFarms() {
+      const idQuery = (farmIdInput?.value || "").trim().toLowerCase();
+      const nameQuery = (farmerNameInput?.value || "").trim().toLowerCase();
+      const container = document.getElementById("farmsContainer");
+      const badge = document.getElementById("farmCountBadge");
+
+      if (!idQuery && !nameQuery) {
+        showInitialEmptyPrompt();
+        return;
+      }
+
+      const filtered = registeredFarms.filter(item => {
+        const id = getFarmIdVal(item).toLowerCase();
+        const name = getFarmerNameVal(item).toLowerCase();
+        const matchId = !idQuery || id.includes(idQuery);
+        const matchName = !nameQuery || name.includes(nameQuery);
+        return matchId && matchName;
+      });
+
+      if (badge) {
+        badge.textContent = `ගැලපෙන ගොවිපලවල්: ${filtered.length} / ${registeredFarms.length}`;
+      }
+
+      if (!container) return;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
+            සෙවුමට ගැලපෙන ගොවිපල දත්ත හමු නොවීය.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map((farm, idx) => {
+        const entriesHtml = Object.entries(farm)
+          .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== "")
+          .map(([k, v]) => `
+            <div class="flex justify-between items-start py-1.5 border-b border-emerald-100 last:border-b-0 text-sm gap-2">
+              <span class="font-semibold text-emerald-900">${k}:</span>
+              <span class="text-gray-800 text-right font-medium">${String(v).trim()}</span>
+            </div>
+          `).join("");
+
+        return `
+          <div class="data-card bg-white p-6 rounded-3xl shadow-lg border-l-8 border-emerald-700" style="animation-delay: ${Math.min(idx * 0.04, 0.4)}s;">
+            <div class="space-y-1">${entriesHtml}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadRegisteredFarmsFromUrl() {
+      const loader = document.getElementById("loadingIndicator");
+      const container = document.getElementById("farmsContainer");
+      if (errorBox) errorBox.classList.add("hidden");
+      if (container) container.innerHTML = "";
+      if (loader) {
+        loader.classList.remove("hidden");
+        loader.classList.add("flex");
+      }
+
+      try {
+        const res = await fetch(`${FARM_DATA_URL}${FARM_DATA_URL.includes("?") ? "&" : "?"}t=${Date.now()}`);
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        const csvText = await res.text();
+        registeredFarms = parseCSVProperly(csvText).filter(row => Object.values(row).some(v => String(v).trim() !== ""));
+      } catch (e) {
+        console.warn("Farm data load error:", e);
+        if (errorBox) {
+          errorBox.innerHTML = `Google Sheet CSV දත්ත ලබාගැනීමට නොහැකි විය. <br><span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව හෝ Sheet publish තත්ත්වය පරීක්ෂා කරන්න.</span>`;
+          errorBox.classList.remove("hidden");
+        }
+      } finally {
+        if (loader) {
+          loader.classList.add("hidden");
+          loader.classList.remove("flex");
+        }
+        renderFarms();
+      }
+    }
+
+    document.addEventListener("click", (e) => {
+      if (
+        !e.target.closest("#farmIdInput") &&
+        !e.target.closest("#farmIdDropdown") &&
+        !e.target.closest('[aria-label="Toggle Farm ID Dropdown"]')
+      ) {
+        if (farmIdDropdown) farmIdDropdown.classList.add("hidden");
+      }
+
+      if (
+        !e.target.closest("#farmerNameInput") &&
+        !e.target.closest("#farmerNameDropdown") &&
+        !e.target.closest('[aria-label="Toggle Farmer Name Dropdown"]')
+      ) {
+        if (farmerNameDropdown) farmerNameDropdown.classList.add("hidden");
+      }
+    });
+
+    loadRegisteredFarmsFromUrl();
+  </script>
+</body>
+</html>
