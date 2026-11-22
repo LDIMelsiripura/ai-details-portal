@@ -162,7 +162,7 @@
       border: 2px solid #34d399;
       position: relative;
       overflow: visible;
-      z-index: 45;
+      z-index: 50;
       animation: fadeIn 0.65s ease-out forwards;
     }
 
@@ -178,19 +178,15 @@
 
     .dropdown-menu {
       display: none;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 100%;
-      margin-top: 4px;
+      position: fixed;
       max-height: 320px;
       overflow-y: auto;
-      z-index: 99999;
+      z-index: 999999;
       background-color: #ffffff;
-      border: 2px solid #34d399;
+      border: 2px solid #10b981;
       border-radius: 1rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
-      animation: fadeInDown 0.18s ease-out forwards;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      animation: fadeInDown 0.16s ease-out forwards;
     }
 
     .dropdown-menu.open {
@@ -198,7 +194,7 @@
     }
 
     .dropdown-item {
-      transition: background-color 0.18s ease, padding-left 0.18s ease;
+      transition: background-color 0.16s ease, padding-left 0.16s ease;
       cursor: pointer;
     }
 
@@ -277,189 +273,4 @@
         <div id="headerClock" class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
           <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300 clock-icon-pulse">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-          </div>
-          <div class="leading-tight">
-            <div id="liveTime" class="text-base md:text-lg font-extrabold tracking-wider text-emerald-200" style="font-variant-numeric: tabular-nums;">
-              12:00:00 PM
-            </div>
-            <div id="liveDate" class="text-xs font-semibold text-emerald-100" style="font-variant-numeric: tabular-nums;">
-              22/11/2026
-            </div>
-          </div>
-        </div>
-
-        <div class="title-3d-wrapper">
-          <span class="inline-block text-xs uppercase tracking-wider font-bold text-amber-200 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-amber-300/35 mb-1.5">
-            Ibbagamuwa Veterinary Office
-          </span>
-          <h1 class="title-3d-animated">
-            ලියාපදිංචි ගොවිපල විස්තර (Registered Farm details) - ඉබ්බාගමුව පශු වෛද්‍ය කාර්යාලය
-          </h1>
-        </div>
-      </div>
-
-      <nav class="emboss-nav-shell flex flex-wrap items-center gap-2.5 p-2 rounded-2xl shrink-0">
-        <a href="index.html" class="emboss-btn-secondary px-4 py-2.5 rounded-xl text-sm tracking-wide">
-          කෘත්‍රිම සිංචන දත්ත
-        </a>
-        <a href="report.html" class="emboss-btn-active px-4 py-2.5 rounded-xl text-sm tracking-wide">
-          ලියාපදිංචි ගොවිපල විස්තර
-        </a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto p-6 flex-grow w-full">
-    <div class="animated-search-box p-6 md:p-8 rounded-3xl shadow-xl mb-8">
-      <h2 class="text-lg md:text-xl font-extrabold text-emerald-950 mb-6 flex items-center gap-3">
-        <div class="p-2.5 bg-gradient-to-br from-emerald-700 to-teal-800 text-white rounded-xl shadow-md">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
-        ලියාපදිංචි ගොවිපල අංකය (Farm ID 6130) හෝ ගොවියාගේ නම (Name of Farmer) තෝරන්න
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-        <!-- 1. Farm ID Dropdown Window -->
-        <div class="relative" id="farmIdWrapper">
-          <label for="farmIdInput" class="block text-sm font-bold text-emerald-950 mb-2">
-            ගොවිපල අංකය (Farm ID 6130):
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              id="farmIdInput"
-              placeholder="Farm ID 6130 තෝරන්න / ටයිප් කරන්න..."
-              class="w-full p-4 pr-11 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm transition"
-              autocomplete="off"
-            >
-            <button
-              type="button"
-              id="farmIdToggleBtn"
-              aria-label="Toggle Farm ID Dropdown"
-              class="absolute inset-y-0 right-0 px-3 flex items-center text-emerald-800 hover:text-emerald-950"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-          </div>
-          <div id="farmIdDropdown" class="dropdown-menu custom-scrollbar"></div>
-        </div>
-
-        <!-- 2. Name of Farmer Dropdown Window -->
-        <div class="relative" id="farmerNameWrapper">
-          <label for="farmerNameInput" class="block text-sm font-bold text-emerald-950 mb-2">
-            ගොවියාගේ නම (Name of Farmer):
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              id="farmerNameInput"
-              placeholder="Name of Farmer තෝරන්න / ටයිප් කරන්න..."
-              class="w-full p-4 pr-11 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm transition"
-              autocomplete="off"
-            >
-            <button
-              type="button"
-              id="farmerNameToggleBtn"
-              aria-label="Toggle Farmer Name Dropdown"
-              class="absolute inset-y-0 right-0 px-3 flex items-center text-emerald-800 hover:text-emerald-950"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-          </div>
-          <div id="farmerNameDropdown" class="dropdown-menu custom-scrollbar"></div>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-emerald-300/70">
-        <div id="farmCountBadge" class="text-sm font-bold text-emerald-950 bg-white/85 px-4 py-2.5 rounded-xl border border-emerald-400 shadow-sm">
-          ලියාපදිංචි ගොවිපලවල්: 0
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            id="refreshBtn"
-            class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-4 py-2.5 rounded-xl text-sm transition duration-300 shadow border border-emerald-400"
-          >
-            Refresh
-          </button>
-          <button
-            type="button"
-            id="resetBtn"
-            class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition duration-300 shadow-md"
-          >
-            Reset
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error Message Box -->
-    <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
-
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="hidden flex-col items-center justify-center p-12 text-emerald-900">
-      <div class="loader rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4"></div>
-      <p class="font-semibold">ලියාපදිංචි ගොවිපල දත්ත පූරණය වෙමින් පවතී...</p>
-    </div>
-
-    <!-- Farms Container -->
-    <div id="farmsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10"></div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="rich-footer text-white py-5 px-4 mt-10 text-center">
-    <div class="max-w-7xl mx-auto space-y-1.5">
-      <p class="text-sm font-bold tracking-wider text-emerald-100">
-        All right reserved
-      </p>
-      <p class="text-xs md:text-sm font-extrabold tracking-wide text-emerald-300 creator-badge">
-        Created by A.I.J.Thilakrathne  +94777168825
-      </p>
-      <p class="text-xs md:text-sm font-bold tracking-wide text-emerald-200 creator-badge">
-        Livestock development imstructor
-      </p>
-    </div>
-  </footer>
-
-  <!-- Image Lightbox Modal -->
-  <div id="imageModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 cursor-pointer">
-    <div class="relative max-w-4xl max-h-full">
-      <button
-        type="button"
-        id="closeImageModalBtn"
-        class="absolute -top-3 -right-3 bg-white text-emerald-950 font-extrabold w-9 h-9 rounded-full shadow-lg flex items-center justify-center hover:bg-emerald-100"
-        aria-label="Close Image"
-      >
-        ✕
-      </button>
-      <img id="modalImg" src="" alt="Farm Image" referrerpolicy="no-referrer" class="max-h-[85vh] max-w-full rounded-2xl shadow-2xl border-4 border-white object-contain bg-white">
-    </div>
-  </div>
-
-  <script>
-    const FARM_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5p0gi4nyS5MI58IEfcZ892w5JKLzyZCDUx79atOC_4HGUrBNwZ4dlZDggP_Jijhj5EnSXmfeCNrhi/pub?output=csv";
-
-    const liveTimeEl = document.getElementById("liveTime");
-    const liveDateEl = document.getElementById("liveDate");
-
-    const farmIdWrapper = document.getElementById("farmIdWrapper");
-    const farmIdInput = document.getElementById("farmIdInput");
-    const farmIdToggleBtn = document.getElementById("farmIdToggleBtn");
-    const farmIdDropdown = document.getElementById("farmIdDropdown");
-
-    const farmerNameWrapper = document.getElementById("farmerNameWrapper");
-    const farmerNameInput = document.getElementById("farmerNameInput");
-    const farmerNameToggleBtn = document.getElementById("farmerNameToggleBtn");
-    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
-
-    const farmCountBadge = document.getElementById("farmCountBadge");
-    const farmsContainer = document.getElementById("farmsContainer");
+              <path stroke-linecap="round" stroke-linejoin="round
