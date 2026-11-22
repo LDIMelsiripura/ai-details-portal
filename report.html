@@ -421,13 +421,34 @@
       renderFarms();
     }
 
+    function showInitialEmptyPrompt() {
+      const container = document.getElementById("farmsContainer");
+      const badge = document.getElementById("farmCountBadge");
+
+      if (badge) {
+        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${registeredFarms.length}`;
+      }
+
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
+          ලියාපදිංචි ගොවිපල විස්තර බැලීමට ඉහත කොටුවෙන් <span class="text-emerald-700 underline">ගොවිපල අංකය (Farm ID)</span> හෝ <span class="text-emerald-700 underline">ගොවිමහතාගේ නම</span> තෝරන්න / ටයිප් කරන්න.
+        </div>
+      `;
+    }
+
     function renderFarms() {
       const query = (farmSearchInput?.value || "").trim().toLowerCase();
       const container = document.getElementById("farmsContainer");
       const badge = document.getElementById("farmCountBadge");
 
+      if (!query) {
+        showInitialEmptyPrompt();
+        return;
+      }
+
       const filtered = registeredFarms.filter(item => {
-        if (!query) return true;
         const id = getFarmIdVal(item).toLowerCase();
         const name = getFarmerNameVal(item).toLowerCase();
         const combined = `${id} - ${name}`.toLowerCase();
@@ -440,7 +461,7 @@
       });
 
       if (badge) {
-        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${filtered.length} / ${registeredFarms.length}`;
+        badge.textContent = `ගැලපෙන ගොවිපලවල්: ${filtered.length} / ${registeredFarms.length}`;
       }
 
       if (!container) return;
@@ -448,7 +469,7 @@
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
-            පෙන්වීමට ගොවිපල දත්ත හමු නොවීය.
+            සෙවුමට ගැලපෙන ගොවිපල දත්ත හමු නොවීය.
           </div>
         `;
         return;
