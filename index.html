@@ -22,9 +22,9 @@
 
     /* Live Clock Box */
     .clock-widget {
-      background: rgba(2, 44, 34, 0.65);
-      border: 1.5px solid rgba(110, 231, 183, 0.45);
-      box-shadow: inset 0 1px 6px rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 0, 0, 0.25);
+      background-color: rgba(2, 44, 34, 0.75);
+      border: 1.5px solid rgba(110, 231, 183, 0.5);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
     }
 
     .animated-search-box {
@@ -60,20 +60,20 @@
   <!-- Header -->
   <header class="rich-header text-white p-4 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3.5">
+      <div class="flex flex-wrap items-center gap-3.5">
         <!-- Live Clock Widget -->
-        <div class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
-          <div class="bg-emerald-400/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300">
+        <div id="headerClock" class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
+          <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
           </div>
           <div class="leading-tight">
-            <div id="liveTime" class="text-base md:text-lg font-extrabold tracking-wider text-emerald-200 tabular-nums">
-              --:--:--
+            <div id="liveTime" class="text-base md:text-lg font-extrabold tracking-wider text-emerald-200" style="font-variant-numeric: tabular-nums;">
+              12:00:00 PM
             </div>
-            <div id="liveDate" class="text-[11px] font-semibold text-emerald-100/90 tabular-nums">
-              --/--/----
+            <div id="liveDate" class="text-xs font-semibold text-emerald-100" style="font-variant-numeric: tabular-nums;">
+              22/11/2026
             </div>
           </div>
         </div>
@@ -227,19 +227,43 @@
 
     function updateLiveClock() {
       const now = new Date();
-      const timeStr = now.toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true
-      }).toUpperCase();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const hh = String(hours).padStart(2, "0");
 
       const dd = String(now.getDate()).padStart(2, "0");
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const yyyy = now.getFullYear();
 
-      if (liveTimeEl) liveTimeEl.textContent = timeStr;
-      if (liveDateEl) liveDateEl.textContent = `${dd}/${mm}/${yyyy}`; }  updateLiveClock(); setInterval(updateLiveClock, 1000);  function normalizeKey(str) { return String(str \vert{}\vert{} "").trim().toLowerCase().replace(/\s+/g, " "); }  function extractDriveId(urlOrId) { if (!urlOrId) return ""; const str = String(urlOrId).trim(); const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/); if (match1 && match1[1]) return match1[1]; const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/); if (match2 && match2[1]) return match2[1]; return ""; }  function toDirectDriveImageUrl(urlOrId) { const id = extractDriveId(urlOrId); if (id) { return `https://lh3.googleusercontent.com/d/${id}=w400`;
+      if (liveTimeEl) liveTimeEl.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
+      if (liveDateEl) liveDateEl.textContent = `${dd}/${mm}/${yyyy}`;
+    }
+
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    function normalizeKey(str) {
+      return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function extractDriveId(urlOrId) {
+      if (!urlOrId) return "";
+      const str = String(urlOrId).trim();
+      const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match1 && match1[1]) return match1[1];
+      const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match2 && match2[1]) return match2[1];
+      return "";
+    }
+
+    function toDirectDriveImageUrl(urlOrId) {
+      const id = extractDriveId(urlOrId);
+      if (id) {
+        return `https://lh3.googleusercontent.com/d/${id}=w400`;
       }
       return String(urlOrId || "").trim();
     }
@@ -343,4 +367,397 @@
     }
 
     function showInitialPromptState() {
-      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන
+      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${aiRecords.length}`;
+      resultsContainer.innerHTML = `
+        <div class="bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300">
+          කෘත්‍රිම සිංචන තොරතුරු බැලීමට ඉහත කොටුවලින් <span class="text-emerald-700 underline">ගොවිපල අංකය (Farm ID)</span> හෝ <span class="text-emerald-700 underline">ගොවිමහතාගේ නම</span> තෝරන්න / ටයිප් කරන්න.
+        </div>
+      `;
+    }
+
+    async function loadAllData() {
+      loadingIndicator.classList.remove("hidden");
+      errorBox.classList.add("hidden");
+      resultsContainer.innerHTML = "";
+
+      try {
+        if (DRIVE_PHOTOS_API_URL) {
+          try {
+            const photoRes = await fetch(`${DRIVE_PHOTOS_API_URL}?t=${Date.now()}`);
+            if (photoRes.ok) {
+              const rawMap = await photoRes.json();
+              drivePhotoMap = {};
+              Object.entries(rawMap || {}).forEach(([k, v]) => {
+                drivePhotoMap[String(k).trim().toLowerCase()] = v;
+              });
+            }
+          } catch (photoErr) {
+            console.warn("Drive photos list load error:", photoErr);
+          }
+        }
+
+        const cacheBusterUrl = `${DATA_URL}&t=${Date.now()}`;
+        const response = await fetch(cacheBusterUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+        const parsed = parseCSVProperly(csvText);
+
+        if (parsed.headers.length > 0) {
+          detectColumnKeys(parsed.headers);
+        }
+
+        aiRecords = parsed.records.filter(row => getFarmId(row) !== "" || getFarmerName(row) !== "");
+
+        if (aiRecords.length === 0) {
+          errorBox.textContent = "Google Sheet එකෙහි දත්ත හමු නොවීය. කරුණාකර Sheet එක Publish කර ඇත්දැයි පරීක්ෂා කරන්න.";
+          errorBox.classList.remove("hidden");
+        } else {
+          filterExactOrPartial(false);
+        }
+      } catch (err) {
+        console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
+        errorBox.innerHTML = `
+          Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය. <br>
+          <span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කරන්න, නැතහොත් මෙම HTML ගොනුව Live Server / Hosting හරහා විවෘත කරන්න.</span>
+        `;
+        errorBox.classList.remove("hidden");
+      } finally {
+        loadingIndicator.classList.add("hidden");
+      }
+    }
+
+    function parseCSVProperly(csvText) {
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentVal += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentVal.trim());
+          currentVal = "";
+        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+          if (char === "\r" && nextChar === "\n") i++;
+          currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return { headers: [], records: [] };
+
+      const rawHeaders = rows[0];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      const records = rows.slice(1).map(row => {
+        const obj = {};
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
+        });
+        return obj;
+      });
+
+      return { headers, records };
+    }
+
+    function escapeJsString(str) {
+      return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
+    }
+
+    function renderFarmIdOptions(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const uniqueIds = [...new Set(aiRecords.map(getFarmId))]
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+      const matches = uniqueIds.filter(id => id.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන ගොවිපල අංකයක් හමු නොවීය</div>`;
+      } else {
+        farmIdDropdown.innerHTML = matches.map(id => {
+          const farmEntries = aiRecords.filter(r => getFarmId(r) === id);
+          const name = farmEntries[0] ? getFarmerName(farmEntries[0]) : "";
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 onclick="selectFarmId('${escapeJsString(id)}')">
+              <div>
+                <span class="font-bold text-emerald-950">${id}</span>
+                <span class="text-xs text-emerald-700 ml-2">${name ? `(${name})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmIdDropdown.classList.remove("hidden");
+    }
+
+    function renderFarmerNameOptions(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const uniqueNames = [...new Set(aiRecords.map(getFarmerName))].filter(Boolean);
+      const matches = uniqueNames.filter(name => name.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන නමක් හමු නොවීය</div>`;
+      } else {
+        farmerNameDropdown.innerHTML = matches.map(name => {
+          const farmEntries = aiRecords.filter(r => getFarmerName(r) === name);
+          const id = farmEntries[0] ? getFarmId(farmEntries[0]) : "";
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 onclick="selectFarmerName('${escapeJsString(name)}')">
+              <div>
+                <span class="font-bold text-emerald-950">${name}</span>
+                <span class="text-xs text-emerald-700 ml-2">${id ? `(ID: ${id})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmerNameDropdown.classList.remove("hidden");
+    }
+
+    function showFarmIdDropdown() {
+      renderFarmIdOptions(farmIdInput.value);
+      farmerNameDropdown.classList.add("hidden");
+    }
+
+    function showFarmerNameDropdown() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      farmIdDropdown.classList.add("hidden");
+    }
+
+    function selectFarmId(id) {
+      farmIdInput.value = id;
+      const found = aiRecords.find(r => getFarmId(r) === id);
+      if (found) farmerNameInput.value = getFarmerName(found);
+      farmIdDropdown.classList.add("hidden");
+      filterExactOrPartial(true);
+    }
+
+    function selectFarmerName(name) {
+      farmerNameInput.value = name;
+      const found = aiRecords.find(r => getFarmerName(r) === name);
+      if (found) farmIdInput.value = getFarmId(found);
+      farmerNameDropdown.classList.add("hidden");
+      filterExactOrPartial(true);
+    }
+
+    function onFarmIdInput() {
+      renderFarmIdOptions(farmIdInput.value);
+      filterExactOrPartial(false);
+    }
+
+    function onFarmerNameInput() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      filterExactOrPartial(false);
+    }
+
+    function filterExactOrPartial(isExactSelection = false) {
+      const idQuery = farmIdInput.value.trim().toLowerCase();
+      const nameQuery = farmerNameInput.value.trim().toLowerCase();
+
+      if (!idQuery && !nameQuery) {
+        showInitialPromptState();
+        return;
+      }
+
+      const filtered = aiRecords.filter(item => {
+        const itemId = getFarmId(item).toLowerCase();
+        const itemName = getFarmerName(item).toLowerCase();
+
+        if (isExactSelection) {
+          return (idQuery && itemId === idQuery) || (nameQuery && itemName === nameQuery);
+        }
+        const matchesId = !idQuery || itemId.includes(idQuery);
+        const matchesName = !nameQuery || itemName.includes(nameQuery);
+        return matchesId && matchesName;
+      });
+
+      renderGroupedFarms(filtered);
+    }
+
+    function renderGroupedFarms(data) {
+      recordCountBadge.textContent = `පෙන්වන මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
+
+      if (!data.length) {
+        resultsContainer.innerHTML = `
+          <div class="bg-white/90 p-8 rounded-2xl text-center text-emerald-900 font-bold shadow">
+            සෙවුමට ගැලපෙන කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
+          </div>
+        `;
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(item => {
+        const fId = getFarmId(item);
+        const fName = getFarmerName(item);
+        const key = `${fId}__${fName}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            farmId: fId,
+            farmerName: fName,
+            address: "",
+            contactNo: "",
+            photoUrl: "",
+            records: []
+          };
+        }
+        if (!grouped[key].address && isMeaningfulValue(getAddress(item))) {
+          grouped[key].address = getAddress(item);
+        }
+        if (!grouped[key].contactNo && isMeaningfulValue(getContactNo(item))) {
+          grouped[key].contactNo = getContactNo(item);
+        }
+        if (!grouped[key].photoUrl && isMeaningfulValue(getPhotoRaw(item))) {
+          grouped[key].photoUrl = buildPhotoUrl(getPhotoRaw(item));
+        }
+        grouped[key].records.push(item);
+      });
+
+      resultsContainer.innerHTML = Object.values(grouped).map(group => {
+        const sortedRecords = group.records.sort((a, b) => getAiDate(b).localeCompare(getAiDate(a)));
+
+        const recordsCardsHtml = sortedRecords.map((rec, index) => {
+          const aiDate = getAiDate(rec) || `වාර්තාව #${index + 1}`;
+
+          const fieldsHtml = Object.entries(rec)
+            .filter(([k, v]) => {
+              if (isHiddenColumn(k)) return false;
+              return isMeaningfulValue(v);
+            })
+            .map(([k, v]) => `
+              <div class="flex justify-between items-start py-1.5 border-b border-emerald-100/80 last:border-b-0 text-sm gap-2">
+                <span class="font-semibold text-emerald-900">${k}:</span>
+                <span class="text-gray-800 text-right font-medium">${String(v).trim()}</span>
+              </div>
+            `).join("");
+
+          return `
+            <div class="bg-emerald-50/70 border border-emerald-300 rounded-2xl p-4 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-emerald-200">
+                <span class="text-xs font-extrabold text-white bg-emerald-700 px-3 py-1 rounded-full">
+                  ${aiDate}
+                </span>
+                <span class="text-xs font-bold text-emerald-800">#${index + 1}</span>
+              </div>
+              <div class="space-y-0.5">
+                ${fieldsHtml || `<div class="text-xs text-gray-500 py-1">අමතර විස්තර නොමැත</div>`}
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const photoHtml = group.photoUrl ? `
+          <div class="shrink-0">
+            <img
+              src="${escapeJsString(group.photoUrl)}"
+              alt="${escapeJsString(group.farmerName || "Photo")}"
+              referrerpolicy="no-referrer"
+              class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-emerald-500 shadow-md bg-emerald-50"
+              onerror="if (!this.dataset.triedFallback) { this.dataset.triedFallback = '1'; const m = this.src.match(/\\/d\\/([a-zA-Z0-9_-]+)/) || this.src.match(/\\/[d]\\/([a-zA-Z0-9_-]+)/) || this.src.match(/id=([a-zA-Z0-9_-]+)/); if (m) this.src = 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w400'; else this.parentElement.style.display='none'; } else { this.parentElement.style.display='none'; }"
+            />
+          </div>
+        ` : "";
+
+        return `
+          <div class="bg-white p-6 md:p-7 rounded-3xl shadow-xl border-l-8 border-emerald-700">
+            <!-- ඉහළ Header කොටස: Photo, Farm ID, Farmer Name, Address සහ Contact no -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-5 pb-4 border-b-2 border-emerald-200">
+              <div class="flex items-start sm:items-center gap-4">
+                ${photoHtml}
+                <div class="space-y-1.5">
+                  <div class="flex flex-wrap items-center gap-2">
+                    ${group.farmId ? `
+                      <span class="inline-block text-xs font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
+                        Farm ID: ${group.farmId}
+                      </span>
+                    ` : ""}
+                  </div>
+                  <h3 class="text-xl md:text-2xl font-extrabold text-emerald-950">
+                    ${group.farmerName || "නම සඳහන් කර නැත"}
+                  </h3>
+                  <div class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm text-emerald-900 pt-1">
+                    ${group.address ? `
+                      <div><span class="font-bold text-emerald-800">Address:</span> <span class="font-medium text-gray-800">${group.address}</span></div>
+                    ` : ""}
+                    ${group.contactNo ? `
+                      <div><span class="font-bold text-emerald-800">Contact no:</span> <span class="font-medium text-gray-800">${group.contactNo}</span></div>
+                    ` : ""}
+                  </div>
+                </div>
+              </div>
+
+              <!-- අකුරු කළු පාට (text-black) කළ Badge එක -->
+              <div class="bg-emerald-200 text-black border border-emerald-500 px-4 py-2 rounded-2xl text-sm font-extrabold shadow self-start lg:self-center">
+                මුළු සිංචන වාර ගණන: ${sortedRecords.length}
+              </div>
+            </div>
+
+            <!-- එම ගොවියාගේ සියලුම දිනවල වාර්තා -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              ${recordsCardsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function resetSearch() {
+      farmIdInput.value = "";
+      farmerNameInput.value = "";
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      showInitialPromptState();
+    }
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#farmIdInput") && !e.target.closest("#farmIdDropdown")) {
+        farmIdDropdown.classList.add("hidden");
+      }
+      if (!e.target.closest("#farmerNameInput") && !e.target.closest("#farmerNameDropdown")) {
+        farmerNameDropdown.classList.add("hidden");
+      }
+    });
+
+    loadAllData();
+  </script>
+</body>
+</html>
