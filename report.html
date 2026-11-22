@@ -71,7 +71,7 @@
     }
 
     .dropdown-menu {
-      max-height: 280px;
+      max-height: 380px;
       overflow-y: auto;
       z-index: 999;
       animation: fadeInDown 0.2s ease-out forwards;
@@ -168,20 +168,20 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        ලියාපදිංචි ගොවිපල අංකය හෝ ගොවිමහතාගේ නම තෝරන්න / සොයන්න
+        ලියාපදිංචි ගොවිපල අංකය හෝ ගොවියාගේ නම (Name of Farmer) තෝරන්න / සොයන්න
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-        <!-- Farm ID / Name Dropdown Input -->
+        <!-- Farm ID / Name of Farmer Dropdown Input -->
         <div class="relative">
           <label for="farmSearchInput" class="block text-sm font-bold text-emerald-950 mb-2">
-            ගොවිපල අංකය / නම (Farm ID / Name):
+            ගොවිපල අංකය / ගොවියාගේ නම (Farm ID / Name of Farmer):
           </label>
           <div class="relative">
             <input
               type="text"
               id="farmSearchInput"
-              placeholder="ගොවිපල අංකය හෝ නම තෝරන්න / ටයිප් කරන්න..."
+              placeholder="Name of Farmer හෝ Farm ID තෝරන්න / ටයිප් කරන්න..."
               onfocus="showFarmDropdown()"
               oninput="onFarmSearchInput()"
               class="w-full p-4 pr-11 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm transition"
@@ -268,6 +268,14 @@
 
     let registeredFarms = [];
 
+    function normalizeKey(str) {
+      return String(str || "")
+        .replace(/^\uFEFF/, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+    }
+
     function parseCSVProperly(csvText) {
       const rows = [];
       let currentRow = [];
@@ -306,19 +314,34 @@
 
       if (rows.length < 2) return [];
 
-      const rawHeaders = rows[0];
+      // Find the header row containing Farm ID or Name of Farmer (defaults to row 0)
+      let headerRowIndex = rows.findIndex(r =>
+        r.some(cell => {
+          const n = normalizeKey(cell);
+          return (
+            n.includes("name of farmer") ||
+            n.includes("farmer name") ||
+            n.includes("farm id") ||
+            n.includes("ගොවිමහතාගේ නම") ||
+            n.includes("ගොවිපල අංකය")
+          );
+        })
+      );
+      if (headerRowIndex === -1) headerRowIndex = 0;
+
+      const rawHeaders = rows[headerRowIndex];
       const validIndices = [];
       const headers = [];
 
       rawHeaders.forEach((h, idx) => {
-        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        const cleanH = h.replace(/^\uFEFF/, "").replace(/\s+/g, " ").trim();
         if (cleanH !== "") {
           validIndices.push(idx);
           headers.push(cleanH);
         }
       });
 
-      return rows.slice(1).map(row => {
+      return rows.slice(headerRowIndex + 1).map(row => {
         const obj = {};
         validIndices.forEach((colIdx, i) => {
           obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
@@ -328,12 +351,28 @@
     }
 
     function getFarmIdVal(farm) {
-      const key = Object.keys(farm).find(k => /^(farm\s*id|farm_id|ගොවිපල\s*අංකය|id)$/i.test(k.trim()));
+      const key = Object.keys(farm).find(k => {
+        const n = normalizeKey(k);
+        return n === "farm id" || n === "farm_id" || n === "id" || n.includes("ගොවිපල අංකය");
+      });
       return key ? String(farm[key] || "").trim() : "";
     }
 
     function getFarmerNameVal(farm) {
-      const key = Object.keys(farm).find(k => /^(farmer\s*name|famer\s*name|farmer_name|ගොවිමහතාගේ\s*නම|නම)$/i.test(k.trim()));
+      const key = Object.keys(farm).find(k => {
+        const n = normalizeKey(k);
+        return (
+          n === "name of farmer" ||
+          n === "farmer name" ||
+          n === "famer name" ||
+          n === "farmer_name" ||
+          n === "name" ||
+          n.includes("name of farmer") ||
+          n.includes("farmer name") ||
+          n.includes("ගොවිමහතාගේ නම") ||
+          n.includes("ගොවියාගේ නම")
+        );
+      });
       return key ? String(farm[key] || "").trim() : "";
     }
 
@@ -345,43 +384,58 @@
       if (!farmSearchDropdown) return;
       const q = filterText.trim().toLowerCase();
 
-      const matches = registeredFarms
-        .map(f => ({
-          id: getFarmIdVal(f),
-          name: getFarmerNameVal(f),
-          raw: f
-        }))
-        .filter(item => {
-          if (!q) return true;
-          return (
-            item.id.toLowerCase().includes(q) ||
-            item.name.toLowerCase().includes(q) ||
-            `${item.id} - ${item.name}`.toLowerCase().includes(q) ||
-            JSON.stringify(item.raw).toLowerCase().includes(q)
-          );
-        });
+      const matches = registeredFarms.filter(item => {
+        if (!q) return true;
+        const id = getFarmIdVal(item).toLowerCase();
+        const name = getFarmerNameVal(item).toLowerCase();
+        return (
+          id.includes(q) ||
+          name.includes(q) ||
+          JSON.stringify(item).toLowerCase().includes(q)
+        );
+      });
 
       if (matches.length === 0) {
         farmSearchDropdown.innerHTML = `
           <div class="p-4 text-sm text-gray-500 font-medium">
-            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන ගොවිපලක් හමු නොවීය"}
+            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන ගොවිපල විස්තර හමු නොවීය"}
           </div>
         `;
       } else {
-        farmSearchDropdown.innerHTML = matches.map(item => {
-          const label = item.id && item.name
-            ? `${item.id} - ${item.name}`
-            : (item.id || item.name || "ගොවිපල");
-          return `
-            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
-                 onclick="selectFarmOption('${escapeJs(label)}')">
-              <div class="truncate">
-                ${item.id ? `<span class="font-extrabold text-emerald-950">${item.id}</span>` : ""}
-                ${item.name ? `<span class="text-sm font-semibold text-emerald-800 ${item.id ? "ml-2" : ""}">${item.name}</span>` : ""}
+        farmSearchDropdown.innerHTML = matches.map(farm => {
+          const id = getFarmIdVal(farm);
+          const name = getFarmerNameVal(farm);
+          const selectVal = name || id || JSON.stringify(farm);
+
+          const otherDetailsHtml = Object.entries(farm)
+            .filter(([k, v]) => {
+              if (v === null || v === undefined || String(v).trim() === "") return false;
+              const n = normalizeKey(k);
+              return n !== "name of farmer" && n !== "farmer name";
+            })
+            .map(([k, v]) => `
+              <div class="text-xs text-emerald-950">
+                <span class="font-bold text-emerald-800">${k}:</span>
+                <span class="font-medium text-gray-800">${String(v).trim()}</span>
               </div>
-              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full shrink-0">
-                තෝරන්න
-              </span>
+            `).join("");
+
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-200 last:border-b-0"
+                 onclick="selectFarmOption('${escapeJs(selectVal)}')">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                <div class="text-sm font-extrabold text-emerald-950">
+                  ${name || "නම සඳහන් කර නැත"}
+                </div>
+                ${id ? `
+                  <span class="text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2.5 py-0.5 rounded-full">
+                    ${id}
+                  </span>
+                ` : ""}
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                ${otherDetailsHtml}
+              </div>
             </div>
           `;
         }).join("");
@@ -433,7 +487,7 @@
 
       container.innerHTML = `
         <div class="col-span-full bg-white/90 p-8 rounded-3xl text-center text-emerald-900 font-bold shadow-md border border-emerald-300 data-card">
-          ලියාපදිංචි ගොවිපල විස්තර බැලීමට ඉහත කොටුවෙන් <span class="text-emerald-700 underline">ගොවිපල අංකය (Farm ID)</span> හෝ <span class="text-emerald-700 underline">ගොවිමහතාගේ නම</span> තෝරන්න / ටයිප් කරන්න.
+          ලියාපදිංචි ගොවිපල විස්තර බැලීමට ඉහත කොටුවෙන් <span class="text-emerald-700 underline">Name of Farmer</span> හෝ <span class="text-emerald-700 underline">ගොවිපල අංකය (Farm ID)</span> තෝරන්න / ටයිප් කරන්න.
         </div>
       `;
     }
@@ -451,11 +505,9 @@
       const filtered = registeredFarms.filter(item => {
         const id = getFarmIdVal(item).toLowerCase();
         const name = getFarmerNameVal(item).toLowerCase();
-        const combined = `${id} - ${name}`.toLowerCase();
         return (
           id.includes(query) ||
           name.includes(query) ||
-          combined.includes(query) ||
           JSON.stringify(item).toLowerCase().includes(query)
         );
       });
