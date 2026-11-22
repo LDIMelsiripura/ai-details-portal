@@ -21,18 +21,26 @@
       box-shadow: 0 12px 30px -6px rgba(2, 44, 34, 0.55);
     }
 
-    /* Clean Natural Logo Style */
-    .daph-logo-wrap {
-      position: relative;
+    /* Original Logo Frame */
+    .daph-logo-box {
+      width: 56px;
+      height: 56px;
       border-radius: 9999px;
-      padding: 2px;
-      background: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      transition: transform 0.3s ease;
+      background-color: #ffffff;
+      border: 2px solid rgba(167, 243, 208, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      flex-shrink: 0;
     }
 
-    .daph-logo-wrap:hover {
-      transform: scale(1.04);
+    .daph-logo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
     .animated-search-box {
@@ -69,11 +77,11 @@
   <header class="rich-header text-white p-4 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3.5">
-        <div class="daph-logo-wrap shrink-0">
+        <div class="daph-logo-box">
           <img
             src="Gemini_Generated_Image_ezsiv2ezsiv2ezsi.jpg"
             alt="සත්ව නිෂ්පාදන හා සෞඛ්‍ය දෙපාර්තමේන්තුව Logo"
-            class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover block"
+            onerror="this.parentElement.style.display='none';"
           >
         </div>
         <div>
