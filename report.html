@@ -201,10 +201,17 @@
           <div id="farmSearchDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl custom-scrollbar"></div>
         </div>
 
-        <div class="flex items-end justify-between md:justify-end gap-3">
+        <div class="flex flex-wrap items-end justify-between md:justify-end gap-3">
           <div id="farmCountBadge" class="text-sm font-bold text-emerald-950 bg-white/85 px-4 py-3 rounded-xl border border-emerald-400 shadow-sm">
             ලියාපදිංචි ගොවිපලවල්: 0
           </div>
+          <button
+            type="button"
+            onclick="loadRegisteredFarmsFromUrl()"
+            class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-4 py-3 rounded-xl text-sm transition duration-300 shadow border border-emerald-400"
+          >
+            Refresh
+          </button>
           <button
             type="button"
             onclick="resetFarmSearch()"
@@ -215,6 +222,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Error Message Box -->
+    <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
 
     <!-- Loading Indicator -->
     <div id="loadingIndicator" class="hidden flex-col items-center justify-center p-12 text-emerald-900">
@@ -227,12 +237,13 @@
   </main>
 
   <script>
-    const FARM_DATA_URL = ""; // අවශ්‍ය නම් Google Sheet CSV publish URL මෙහි යොදන්න
+    const FARM_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5p0gi4nyS5MI58IEfcZ892w5JKLzyZCDUx79atOC_4HGUrBNwZ4dlZDggP_Jijhj5EnSXmfeCNrhi/pub?output=csv";
 
     const liveTimeEl = document.getElementById("liveTime");
     const liveDateEl = document.getElementById("liveDate");
     const farmSearchInput = document.getElementById("farmSearchInput");
     const farmSearchDropdown = document.getElementById("farmSearchDropdown");
+    const errorBox = document.getElementById("errorBox");
 
     function updateLiveClock() {
       const now = new Date();
@@ -256,6 +267,65 @@
     setInterval(updateLiveClock, 1000);
 
     let registeredFarms = [];
+
+    function parseCSVProperly(csvText) {
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentVal += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentVal.trim());
+          currentVal = "";
+        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+          if (char === "\r" && nextChar === "\n") i++;
+          currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return [];
+
+      const rawHeaders = rows[0];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      return rows.slice(1).map(row => {
+        const obj = {};
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
+        });
+        return obj;
+      });
+    }
 
     function getFarmIdVal(farm) {
       const key = Object.keys(farm).find(k => /^(farm\s*id|farm_id|ගොවිපල\s*අංකය|id)$/i.test(k.trim()));
@@ -286,6 +356,7 @@
           return (
             item.id.toLowerCase().includes(q) ||
             item.name.toLowerCase().includes(q) ||
+            `${item.id} - ${item.name}`.toLowerCase().includes(q) ||
             JSON.stringify(item.raw).toLowerCase().includes(q)
           );
         });
@@ -293,7 +364,7 @@
       if (matches.length === 0) {
         farmSearchDropdown.innerHTML = `
           <div class="p-4 text-sm text-gray-500 font-medium">
-            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත තවම ඇතුළත් කර නැත" : "ගැලපෙන ගොවිපලක් හමු නොවීය"}
+            ${registeredFarms.length === 0 ? "ලියාපදිංචි ගොවිපල දත්ත හමු නොවීය" : "ගැලපෙන ගොවිපලක් හමු නොවීය"}
           </div>
         `;
       } else {
@@ -369,7 +440,7 @@
       });
 
       if (badge) {
-        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${filtered.length}`;
+        badge.textContent = `ලියාපදිංචි ගොවිපලවල්: ${filtered.length} / ${registeredFarms.length}`;
       }
 
       if (!container) return;
@@ -394,7 +465,7 @@
           `).join("");
 
         return `
-          <div class="data-card bg-white p-6 rounded-3xl shadow-lg border-l-8 border-emerald-700" style="animation-delay: ${Math.min(idx * 0.05, 0.4)}s;">
+          <div class="data-card bg-white p-6 rounded-3xl shadow-lg border-l-8 border-emerald-700" style="animation-delay: ${Math.min(idx * 0.04, 0.4)}s;">
             <div class="space-y-1">${entriesHtml}</div>
           </div>
         `;
@@ -402,29 +473,31 @@
     }
 
     async function loadRegisteredFarmsFromUrl() {
-      if (!FARM_DATA_URL) {
-        renderFarms();
-        return;
-      }
       const loader = document.getElementById("loadingIndicator");
-      if (loader) loader.classList.remove("hidden");
+      const container = document.getElementById("farmsContainer");
+      if (errorBox) errorBox.classList.add("hidden");
+      if (container) container.innerHTML = "";
+      if (loader) {
+        loader.classList.remove("hidden");
+        loader.classList.add("flex");
+      }
+
       try {
         const res = await fetch(`${FARM_DATA_URL}${FARM_DATA_URL.includes("?") ? "&" : "?"}t=${Date.now()}`);
-        const csv = await res.text();
-        const lines = csv.split(/\r?\n/).filter(l => l.trim() !== "");
-        if (lines.length > 1) {
-          const headers = lines[0].split(",").map(h => h.replace(/^"|"$/g, "").trim());
-          registeredFarms = lines.slice(1).map(line => {
-            const cols = line.split(",").map(c => c.replace(/^"|"$/g, "").trim());
-            const obj = {};
-            headers.forEach((h, i) => { if (h) obj[h] = cols[i] || ""; });
-            return obj;
-          });
-        }
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        const csvText = await res.text();
+        registeredFarms = parseCSVProperly(csvText).filter(row => Object.values(row).some(v => String(v).trim() !== ""));
       } catch (e) {
         console.warn("Farm data load error:", e);
+        if (errorBox) {
+          errorBox.innerHTML = `Google Sheet CSV දත්ත ලබාගැනීමට නොහැකි විය. <br><span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව හෝ Sheet publish තත්ත්වය පරීක්ෂා කරන්න.</span>`;
+          errorBox.classList.remove("hidden");
+        }
       } finally {
-        if (loader) loader.classList.add("hidden");
+        if (loader) {
+          loader.classList.add("hidden");
+          loader.classList.remove("flex");
+        }
         renderFarms();
       }
     }
