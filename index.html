@@ -45,21 +45,9 @@
     @keyframes title3DGoldFloat {
       0%, 100% {
         transform: rotateX(4deg) rotateY(-2deg) translateY(0px) scale(1);
-        filter:
-          drop-shadow(0 1px 0 #b45309)
-          drop-shadow(0 2px 0 #92400e)
-          drop-shadow(0 3px 0 #78350f)
-          drop-shadow(0 4px 0 #022c22)
-          drop-shadow(0 8px 16px rgba(245, 158, 11, 0.45));
       }
       50% {
         transform: rotateX(-3deg) rotateY(2deg) translateY(-3px) scale(1.015);
-        filter:
-          drop-shadow(0 1px 0 #f59e0b)
-          drop-shadow(0 3px 0 #b45309)
-          drop-shadow(0 5px 0 #78350f)
-          drop-shadow(0 6px 0 #022c22)
-          drop-shadow(0 14px 24px rgba(251, 191, 36, 0.72));
       }
     }
 
@@ -81,20 +69,8 @@
       border-right: 1px solid #b45309;
       border-bottom: 3px solid #92400e;
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
-      box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.4),
-        inset 0 1px 1px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       transition: all 0.2s ease;
-    }
-
-    .emboss-btn-active:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.05);
-    }
-
-    .emboss-btn-active:active {
-      transform: translateY(2px);
-      border-bottom-width: 1px;
     }
 
     .emboss-btn-secondary {
@@ -106,24 +82,8 @@
       border-right: 1px solid #064e3b;
       border-bottom: 3px solid #022c22;
       text-shadow: 0 1px 2px rgba(2, 44, 34, 0.85);
-      box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.35),
-        inset 0 1px 1px rgba(167, 243, 208, 0.55);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
       transition: all 0.2s ease;
-    }
-
-    .emboss-btn-secondary:hover {
-      background: linear-gradient(180deg, #34d399 0%, #10b981 52%, #059669 100%);
-      color: #ffffff;
-      transform: translateY(-1px);
-      box-shadow:
-        0 6px 14px rgba(16, 185, 129, 0.35),
-        inset 0 1px 1px rgba(209, 250, 229, 0.7);
-    }
-
-    .emboss-btn-secondary:active {
-      transform: translateY(2px);
-      border-bottom-width: 1px;
     }
 
     .clock-widget {
@@ -165,38 +125,23 @@
       border: 1.5px solid #d1fae5;
       box-shadow: 0 8px 20px -6px rgba(6, 78, 59, 0.14);
       opacity: 0;
-      animation: detailCardReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                  box-shadow 0.28s ease,
-                  border-color 0.28s ease;
+      animation: detailCardReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
 
     .white-detail-card:hover {
-      transform: translateY(-5px) scale(1.01);
+      transform: translateY(-4px);
       border-color: #10b981;
       box-shadow: 0 18px 30px -10px rgba(6, 78, 59, 0.28);
     }
 
     @keyframes detailCardReveal {
-      0% {
-        opacity: 0;
-        transform: translateY(18px) scale(0.97);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .detail-row-item {
-      transition: background-color 0.2s ease, padding-left 0.2s ease, padding-right 0.2s ease;
-      border-radius: 0.5rem;
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     .detail-row-item:hover {
       background-color: #ecfdf5;
-      padding-left: 0.4rem;
-      padding-right: 0.4rem;
     }
 
     .loader {
@@ -213,34 +158,6 @@
       background: linear-gradient(120deg, #022c22 0%, #064e3b 45%, #047857 100%);
       border-top: 3px solid #10b981;
       box-shadow: 0 -10px 25px -5px rgba(2, 44, 34, 0.45);
-      animation: footerFloatIn 0.9s ease-out forwards;
-    }
-
-    .creator-badge {
-      display: inline-block;
-      animation: creatorGlow 3s ease-in-out infinite;
-    }
-
-    @keyframes footerFloatIn {
-      from {
-        opacity: 0;
-        transform: translateY(24px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes creatorGlow {
-      0%, 100% {
-        transform: translateY(0px);
-        text-shadow: 0 0 6px rgba(110, 231, 183, 0.25);
-      }
-      50% {
-        transform: translateY(-2px);
-        text-shadow: 0 0 14px rgba(110, 231, 183, 0.75);
-      }
     }
   </style>
 </head>
@@ -250,7 +167,6 @@
   <header class="rich-header text-white p-4 md:p-5 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
       <div class="flex flex-wrap items-center gap-4">
-        <!-- Live Clock Widget -->
         <div id="headerClock" class="clock-widget px-4 py-2.5 rounded-2xl flex items-center gap-3 shrink-0">
           <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-300/35 text-emerald-300">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,12 +174,8 @@
             </svg>
           </div>
           <div class="leading-tight">
-            <div id="liveTime" class="text-base md:text-lg font-extrabold tracking-wider text-emerald-200" style="font-variant-numeric: tabular-nums;">
-              12:00:00 PM
-            </div>
-            <div id="liveDate" class="text-xs font-semibold text-emerald-100" style="font-variant-numeric: tabular-nums;">
-              22/11/2026
-            </div>
+            <div id="liveTime" class="text-base md:text-lg font-extrabold tracking-wider text-emerald-200" style="font-variant-numeric: tabular-nums;">12:00:00 PM</div>
+            <div id="liveDate" class="text-xs font-semibold text-emerald-100" style="font-variant-numeric: tabular-nums;">23/11/2026</div>
           </div>
         </div>
 
@@ -277,7 +189,6 @@
         </div>
       </div>
 
-      <!-- Embossed Navigation Menu -->
       <nav class="emboss-nav-shell flex flex-wrap items-center gap-2.5 p-2 rounded-2xl shrink-0">
         <a href="index.html" class="emboss-btn-active px-4 py-2.5 rounded-xl text-sm tracking-wide">
           කෘත්‍රිම සිංචන දත්ත
@@ -298,7 +209,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        ගොවිපල අංකය හෝ ගොවිමහතාගේ නම තෝරන්න / ටයිප් කරන්න
+        ගොවිපල අංකය හෝ ගොවිමහතාගේ නම තෝරන්න
       </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
@@ -311,7 +222,7 @@
             type="text"
             id="farmIdInput"
             value=""
-            placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..."
+            placeholder="මෙතන ක්ලික් කර Farm ID තෝරන්න හෝ ටයිප් කරන්න..."
             oninput="onFarmIdInput()"
             onfocus="showFarmIdDropdown()"
             class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
@@ -329,7 +240,7 @@
             type="text"
             id="farmerNameInput"
             value=""
-            placeholder="නම ටයිප් කරන්න..."
+            placeholder="මෙතන ක්ලික් කර නම තෝරන්න හෝ ටයිප් කරන්න..."
             oninput="onFarmerNameInput()"
             onfocus="showFarmerNameDropdown()"
             class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
@@ -364,22 +275,16 @@
     <!-- Error Message Box -->
     <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
 
-    <!-- Results Container (ආරම්භයේ දී හිස්ව පවතී; drop-down එකෙන් තේරූ විට පමණක් විස්තර පෙන්වයි) -->
+    <!-- Results Container (ආරම්භයේ දී හිස්ව පවතී) -->
     <div id="resultsContainer" class="space-y-8"></div>
   </main>
 
   <!-- Footer -->
   <footer class="rich-footer text-white py-5 px-4 mt-10 text-center">
     <div class="max-w-7xl mx-auto space-y-1.5">
-      <p class="text-sm font-bold tracking-wider text-emerald-100">
-        All rights reserved
-      </p>
-      <p class="text-xs md:text-sm font-extrabold tracking-wide text-emerald-300 creator-badge">
-        Created by A.I.J.Thilakrathne +94777168825
-      </p>
-      <p class="text-xs md:text-sm font-bold tracking-wide text-emerald-200 creator-badge">
-        Livestock development imstructor
-      </p>
+      <p class="text-sm font-bold tracking-wider text-emerald-100">All rights reserved</p>
+      <p class="text-xs md:text-sm font-extrabold tracking-wide text-emerald-300">Created by A.I.J.Thilakrathne +94777168825</p>
+      <p class="text-xs md:text-sm font-bold tracking-wide text-emerald-200">Livestock development imstructor</p>
     </div>
   </footer>
 
@@ -388,20 +293,9 @@
     const DRIVE_PHOTOS_API_URL = "https://script.google.com/macros/s/AKfycbyssRNU8t14bzJUGs6d7Pgg6UgT8QT9qRKULV40zTBZxi6ddzy-UHBg9g2dVTlFg0d7/exec";
     const SUBFOLDER_NAME = "Melsiripura LDI_Images";
 
-    const ALLOWED_DETAIL_FIELDS = [
-      { label: "Completed at", keys: ["completed at", "completed_at", "completedat"] },
-      { label: "Date", keys: ["date", "ai date", "ai_date"] },
-      { label: "Cow Name", keys: ["cow name", "cow_name", "cowname"] },
-      { label: "No of calving", keys: ["no of calving", "no_of_calving", "noofcalving", "calving no"] },
-      { label: "Calving Date 1", keys: ["calving date 1", "calving_date_1", "calvingdate1", "calving date1"] },
-      { label: "Type of Ai", keys: ["type of ai", "type_of_ai", "typeofai", "ai type"] },
-      { label: "Semen code", keys: ["semen code", "semen_code", "semencode"] },
-      { label: "Reeipt no", keys: ["reeipt no", "receipt no", "receipt_no", "reeipt_no", "receiptno", "reeiptno"] },
-      { label: "Date tobe calved", keys: ["date tobe calved", "date to be calved", "date_tobe_calved", "date_to_be_calved", "datetobecalved"] }
-    ];
-
     const IGNORED_VALUES = ["", "-", "n/a", "na", "null", "undefined"];
 
+    let allHeaders = [];
     let aiRecords = [];
     let drivePhotoMap = {};
     let farmIdKey = "";
@@ -411,434 +305,4 @@
     let photoKey = "";
     let aiDateKey = "";
 
-    const farmIdInput = document.getElementById("farmIdInput");
-    const farmerNameInput = document.getElementById("farmerNameInput");
-    const farmIdDropdown = document.getElementById("farmIdDropdown");
-    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
-    const resultsContainer = document.getElementById("resultsContainer");
-    const recordCountBadge = document.getElementById("recordCountBadge");
-    const loadingIndicator = document.getElementById("loadingIndicator");
-    const loadingStatusText = document.getElementById("loadingStatusText");
-    const errorBox = document.getElementById("errorBox");
-    const liveTimeEl = document.getElementById("liveTime");
-    const liveDateEl = document.getElementById("liveDate");
-
-    function setLoadingVisible(isVisible, text = "Google Sheet වෙතින් දත්ත පූරණය වෙමින් පවතී...") {
-      if (!loadingIndicator) return;
-      if (isVisible) {
-        loadingIndicator.classList.remove("hidden");
-        loadingIndicator.classList.add("flex");
-        if (loadingStatusText) loadingStatusText.textContent = text;
-      } else {
-        loadingIndicator.classList.add("hidden");
-        loadingIndicator.classList.remove("flex");
-      }
-    }
-
-    function updateLiveClock() {
-      const now = new Date();
-      let hours = now.getHours();
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      const ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      const hh = String(hours).padStart(2, "0");
-
-      const dd = String(now.getDate()).padStart(2, "0");
-      const mm = String(now.getMonth() + 1).padStart(2, "0");
-      const yyyy = now.getFullYear();
-
-      if (liveTimeEl) liveTimeEl.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
-      if (liveDateEl) liveDateEl.textContent = `${dd}/${mm}/${yyyy}`;
-    }
-
-    updateLiveClock();
-    setInterval(updateLiveClock, 1000);
-
-    function normalizeKey(str) {
-      return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
-    }
-
-    function extractDriveId(urlOrId) {
-      if (!urlOrId) return "";
-      const str = String(urlOrId).trim();
-      const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
-      if (match1 && match1[1]) return match1[1];
-      const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      if (match2 && match2[1]) return match2[1];
-      return "";
-    }
-
-    function toDirectDriveImageUrl(urlOrId) {
-      const id = extractDriveId(urlOrId);
-      if (id) {
-        return `https://lh3.googleusercontent.com/d/${id}=w400`;
-      }
-      return String(urlOrId || "").trim();
-    }
-
-    function detectColumnKeys(headers) {
-      farmIdKey =
-        headers.find(h => /^(farm\s*id|farm_id|ගොවිපල\s*අංකය)$/i.test(h.trim())) ||
-        headers.find(h => /farm\s*id|ගොවිපල/i.test(h)) ||
-        headers[0] || "";
-
-      farmerNameKey =
-        headers.find(h => /^(famer\s*name|farmer\s*name|farmer_name|ගොවිමහතාගේ\s*නම|නම)$/i.test(h.trim()) && h !== farmIdKey) ||
-        headers.find(h => /famer|farmer|name|නම/i.test(h) && h !== farmIdKey) ||
-        headers[1] || "";
-
-      contactNoKey =
-        headers.find(h => /contact\s*(no|number)|phone|mobile|tel|දුරකථන/i.test(h)) || "";
-
-      addressKey =
-        headers.find(h => /address|ලිපිනය/i.test(h)) || "";
-
-      photoKey =
-        headers.find(h => /^(photo|image|img|picture|ඡායාරූප|රූපය)$/i.test(h.trim())) ||
-        headers.find(h => /photo|image|picture|ඡායාරූප|රූප/i.test(h)) || "";
-
-      aiDateKey =
-        headers.find(h => /^(date|ai\s*date|දිනය)$/i.test(h.trim())) ||
-        headers.find(h => /date|දිනය/i.test(h)) || "";
-    }
-
-    function getFarmId(record) {
-      return String(record[farmIdKey] || "").trim();
-    }
-
-    function getFarmerName(record) {
-      return String(record[farmerNameKey] || "").trim();
-    }
-
-    function getContactNo(record) {
-      return String(contactNoKey ? (record[contactNoKey] || "") : "").trim();
-    }
-
-    function getAddress(record) {
-      return String(addressKey ? (record[addressKey] || "") : "").trim();
-    }
-
-    function getPhotoRaw(record) {
-      return String(photoKey ? (record[photoKey] || "") : "").trim();
-    }
-
-    function buildPhotoUrl(rawPhoto) {
-      if (!isMeaningfulValue(rawPhoto)) return "";
-      const val = rawPhoto.trim();
-
-      const normalizedVal = val.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
-      const fileNameOnly = normalizedVal.split("/").pop().trim();
-      const withSubfolderKey = `${SUBFOLDER_NAME.toLowerCase()}/${fileNameOnly}`;
-
-      if (drivePhotoMap[normalizedVal]) {
-        return toDirectDriveImageUrl(drivePhotoMap[normalizedVal]);
-      }
-      if (drivePhotoMap[withSubfolderKey]) {
-        return toDirectDriveImageUrl(drivePhotoMap[withSubfolderKey]);
-      }
-      if (drivePhotoMap[fileNameOnly]) {
-        return toDirectDriveImageUrl(drivePhotoMap[fileNameOnly]);
-      }
-
-      const matchedKey = Object.keys(drivePhotoMap).find(k => {
-        const lk = k.toLowerCase();
-        return lk === fileNameOnly || lk.endsWith("/" + fileNameOnly) || lk.includes(fileNameOnly);
-      });
-      if (matchedKey) {
-        return toDirectDriveImageUrl(drivePhotoMap[matchedKey]);
-      }
-
-      if (/^(https?:\/\/|data:image\/)/i.test(val)) {
-        return toDirectDriveImageUrl(val);
-      }
-
-      return "";
-    }
-
-    function getAiDate(record) {
-      return String(aiDateKey ? (record[aiDateKey] || "") : "").trim();
-    }
-
-    function isMeaningfulValue(val) {
-      if (val === null || val === undefined) return false;
-      const str = String(val).trim();
-      return !IGNORED_VALUES.includes(str.toLowerCase());
-    }
-
-    function getAllowedFieldsForRecord(rec) {
-      const normalizedEntries = {};
-      Object.entries(rec).forEach(([k, v]) => {
-        normalizedEntries[normalizeKey(k)] = v;
-      });
-
-      return ALLOWED_DETAIL_FIELDS
-        .map(fieldDef => {
-          for (const candidate of fieldDef.keys) {
-            const normCandidate = normalizeKey(candidate);
-            if (Object.prototype.hasOwnProperty.call(normalizedEntries, normCandidate)) {
-              const rawVal = normalizedEntries[normCandidate];
-              if (isMeaningfulValue(rawVal)) {
-                return {
-                  label: fieldDef.label,
-                  value: String(rawVal).trim()
-                };
-              }
-              return null;
-            }
-          }
-          return null;
-        })
-        .filter(Boolean);
-    }
-
-    // ආරම්භයේ දී සහ Reset කළ විට කිසිදු විස්තරයක් නොපෙන්වා හිස්ව තබන function එක
-    function showEmptyIdleState() {
-      farmIdDropdown.classList.add("hidden");
-      farmerNameDropdown.classList.add("hidden");
-      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${aiRecords.length}`;
-      resultsContainer.innerHTML = "";
-    }
-
-    async function fetchWithTimeout(url, timeoutMs = 12000) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
-        return res;
-      } finally {
-        clearTimeout(timer);
-      }
-    }
-
-    async function loadDrivePhotosSafely() {
-      if (!DRIVE_PHOTOS_API_URL) return;
-      try {
-        const photoRes = await fetchWithTimeout(`${DRIVE_PHOTOS_API_URL}?t=${Date.now()}`, 8000);
-        if (photoRes.ok) {
-          const rawMap = await photoRes.json();
-          const nextMap = {};
-          Object.entries(rawMap || {}).forEach(([k, v]) => {
-            nextMap[String(k).trim().toLowerCase()] = v;
-          });
-          drivePhotoMap = nextMap;
-        }
-      } catch (photoErr) {
-        console.warn("Drive photos list load skipped/failed:", photoErr);
-      }
-    }
-
-    async function loadAllData() {
-      setLoadingVisible(true, "Google Sheet වෙතින් දත්ත පූරණය වෙමින් පවතී...");
-      errorBox.classList.add("hidden");
-      resultsContainer.innerHTML = "";
-
-      try {
-        await loadDrivePhotosSafely();
-
-        const sep = DATA_URL.includes("?") ? "&" : "?";
-        const cacheBusterUrl = `${DATA_URL}${sep}t=${Date.now()}`;
-        const response = await fetchWithTimeout(cacheBusterUrl, 15000);
-
-        if (!response.ok) {
-          throw new Error(`HTTP Status ${response.status} (${response.statusText || "Network Error"})`);
-        }
-
-        const csvText = await response.text();
-        if (!csvText || !csvText.trim()) {
-          throw new Error("CSV response එක හිස්ය.");
-        }
-
-        if (/^\s*<!doctype html>|<html[\s>]/i.test(csvText)) {
-          throw new Error("CSV වෙනුවට HTML login/error පිටුවක් ලැබී ඇත. Google Sheet එක 'Publish to the web' (CSV) ලෙස ප්‍රකාශයට පත් කර ඇත්දැයි පරීක්ෂා කරන්න.");
-        }
-
-        const parsed = parseCSVProperly(csvText);
-
-        if (parsed.headers.length > 0) {
-          detectColumnKeys(parsed.headers);
-        }
-
-        aiRecords = parsed.records.filter(row => getFarmId(row) !== "" || getFarmerName(row) !== "");
-
-        if (aiRecords.length === 0) {
-          errorBox.innerHTML = `
-            Google Sheet CSV එක load වූ නමුත් හඳුනාගත හැකි දත්ත පේළි හමු නොවීය.<br>
-            <span class="text-sm font-normal">කරුණාකර Sheet headers (Farm ID / Farmer Name) සහ දත්ත පරීක්ෂා කරන්න.</span>
-          `;
-          errorBox.classList.remove("hidden");
-        } else {
-          // ආරම්භයේ දී විස්තර නොපෙන්වා හිස්ව තබයි
-          showEmptyIdleState();
-        }
-      } catch (err) {
-        console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
-        const reason = err && err.name === "AbortError"
-          ? "Request timed out (සම්බන්ධතාව ප්‍රමාද විය)."
-          : (err && err.message ? err.message : "Unknown error");
-
-        errorBox.innerHTML = `
-          Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය.<br>
-          <span class="text-sm font-bold text-red-700 block mt-1">දෝෂ විස්තරය: ${reason}</span>
-          <span class="text-sm font-normal block mt-1">කරුණාකර අන්තර්ජාල සම්බන්ධතාව, Google Sheet Publish/Share settings, හෝ Live Server / Hosting භාවිතය පරීක්ෂා කරන්න.</span>
-        `;
-        errorBox.classList.remove("hidden");
-      } finally {
-        setLoadingVisible(false);
-      }
-    }
-
-    function parseCSVProperly(csvText) {
-      const rows = [];
-      let currentRow = [];
-      let currentVal = "";
-      let insideQuotes = false;
-
-      for (let i = 0; i < csvText.length; i++) {
-        const char = csvText[i];
-        const nextChar = csvText[i + 1];
-
-        if (char === '"') {
-          if (insideQuotes && nextChar === '"') {
-            currentVal += '"';
-            i++;
-          } else {
-            insideQuotes = !insideQuotes;
-          }
-        } else if (char === "," && !insideQuotes) {
-          currentRow.push(currentVal.trim());
-          currentVal = "";
-        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
-          if (char === "\r" && nextChar === "\n") i++;
-          currentRow.push(currentVal.trim());
-          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
-          currentRow = [];
-          currentVal = "";
-        } else {
-          currentVal += char;
-        }
-      }
-
-      if (currentVal !== "" || currentRow.length > 0) {
-        currentRow.push(currentVal.trim());
-        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
-      }
-
-      if (rows.length < 2) return { headers: [], records: [] };
-
-      const rawHeaders = rows[0];
-      const validIndices = [];
-      const headers = [];
-
-      rawHeaders.forEach((h, idx) => {
-        const cleanH = h.replace(/^\uFEFF/, "").trim();
-        if (cleanH !== "") {
-          validIndices.push(idx);
-          headers.push(cleanH);
-        }
-      });
-
-      const records = rows.slice(1).map(row => {
-        const obj = {};
-        validIndices.forEach((colIdx, i) => {
-          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
-        });
-        return obj;
-      });
-
-      return { headers, records };
-    }
-
-    function escapeJsString(str) {
-      return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, "&quot;");
-    }
-
-    function renderFarmIdOptions(filterText = "") {
-      const query = filterText.trim().toLowerCase();
-      // Z-A (Descending) sorting
-      const uniqueIds = [...new Set(aiRecords.map(getFarmId))]
-        .filter(Boolean)
-        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" }));
-      const matches = uniqueIds.filter(id => id.toLowerCase().includes(query));
-
-      if (matches.length === 0) {
-        farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන ගොවිපල අංකයක් හමු නොවීය</div>`;
-      } else {
-        farmIdDropdown.innerHTML = matches.map(id => {
-          const farmEntries = aiRecords.filter(r => getFarmId(r) === id);
-          const name = farmEntries[0] ? getFarmerName(farmEntries[0]) : "";
-          return `
-            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
-                 onclick="selectFarmId('${escapeJsString(id)}')">
-              <div>
-                <span class="font-bold text-emerald-950">${id}</span>
-                <span class="text-xs text-emerald-700 ml-2">${name ? `(${name})` : ""}</span>
-              </div>
-              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                වාර්තා ${farmEntries.length}
-              </span>
-            </div>
-          `;
-        }).join("");
-      }
-      farmIdDropdown.classList.remove("hidden");
-    }
-
-    function renderFarmerNameOptions(filterText = "") {
-      const query = filterText.trim().toLowerCase();
-      const uniqueNames = [...new Set(aiRecords.map(getFarmerName))].filter(Boolean);
-      const matches = uniqueNames.filter(name => name.toLowerCase().includes(query));
-
-      if (matches.length === 0) {
-        farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන නමක් හමු නොවීය</div>`;
-      } else {
-        farmerNameDropdown.innerHTML = matches.map(name => {
-          const farmEntries = aiRecords.filter(r => getFarmerName(r) === name);
-          const id = farmEntries[0] ? getFarmId(farmEntries[0]) : "";
-          return `
-            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
-                 onclick="selectFarmerName('${escapeJsString(name)}')">
-              <div>
-                <span class="font-bold text-emerald-950">${name}</span>
-                <span class="text-xs text-emerald-700 ml-2">${id ? `(ID: ${id})` : ""}</span>
-              </div>
-              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
-                වාර්තා ${farmEntries.length}
-              </span>
-            </div>
-          `;
-        }).join("");
-      }
-      farmerNameDropdown.classList.remove("hidden");
-    }
-
-    function showFarmIdDropdown() {
-      renderFarmIdOptions(farmIdInput.value);
-      farmerNameDropdown.classList.add("hidden");
-    }
-
-    function showFarmerNameDropdown() {
-      renderFarmerNameOptions(farmerNameInput.value);
-      farmIdDropdown.classList.add("hidden");
-    }
-
-    // Drop-down එකෙන් Farm ID එකක් select කළ විට පමණක් විස්තර පෙන්වයි
-    function selectFarmId(id) {
-      farmIdInput.value = id;
-      const found = aiRecords.find(r => getFarmId(r) === id);
-      if (found) farmerNameInput.value = getFarmerName(found);
-      farmIdDropdown.classList.add("hidden");
-      showSelectedRecords(id, "");
-    }
-
-    // Drop-down එකෙන් Farmer Name එකක් select කළ විට පමණක් විස්තර පෙන්වයි
-    function selectFarmerName(name) {
-      farmerNameInput.value = name;
-      const found = aiRecords.find(r => getFarmerName(r) === name);
-      if (found) farmIdInput.value = getFarmId(found);
-      farmerNameDropdown.classList.add("hidden");
-      showSelectedRecords("", name);
-    }
-
-    //
+    const farmIdInput = document.getElementBy
