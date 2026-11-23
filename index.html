@@ -194,7 +194,7 @@
     }
 
     .detail-row-item {
-      transition: background-color 0.2s ease, padding-left 0.2s ease;
+      transition: background-color 0.2s ease, padding-left 0.2s ease, padding-right 0.2s ease;
       border-radius: 0.5rem;
     }
 
@@ -316,4 +316,381 @@
           <input
             type="text"
             id="farmIdInput"
-            placeholder="උදා: 6130 හෝ අංක
+            placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..."
+            oninput="onFarmIdInput()"
+            onfocus="showFarmIdDropdown()"
+            class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
+            autocomplete="off"
+          >
+          <div id="farmIdDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl"></div>
+        </div>
+
+        <!-- Farmer Name Custom Dropdown -->
+        <div class="relative">
+          <label for="farmerNameInput" class="block text-sm font-bold text-emerald-950 mb-2">
+            ගොවිමහතාගේ නම (Farmer Name):
+          </label>
+          <input
+            type="text"
+            id="farmerNameInput"
+            placeholder="නම ටයිප් කරන්න..."
+            oninput="onFarmerNameInput()"
+            onfocus="showFarmerNameDropdown()"
+            class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
+            autocomplete="off"
+          >
+          <div id="farmerNameDropdown" class="dropdown-menu hidden absolute left-0 right-0 mt-1 bg-white border-2 border-emerald-400 rounded-2xl shadow-2xl"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div id="recordCountBadge" class="text-sm font-bold text-emerald-950 bg-white/80 px-4 py-2 rounded-xl border border-emerald-400">
+          මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: 0
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="loadAllData()" class="bg-white hover:bg-emerald-50 text-emerald-900 font-bold px-5 py-3 rounded-xl text-sm transition duration-300 shadow border border-emerald-400">
+            දත්ත යාවත්කාලීන කරන්න (Refresh)
+          </button>
+          <button type="button" onclick="resetSearch()" class="bg-gradient-to-r from-emerald-800 to-teal-800 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition duration-300 shadow-md">
+            නැවත සකසන්න (Reset)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loadingIndicator" class="flex flex-col items-center justify-center p-12 text-emerald-900">
+      <div class="loader rounded-full border-4 border-t-4 border-emerald-200 h-12 w-12 mb-4"></div>
+      <p class="font-semibold">Google Sheet සහ Drive (Melsiripura LDI_Images) වෙතින් දත්ත පූරණය වෙමින් පවතී...</p>
+    </div>
+
+    <!-- Error Message Box -->
+    <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
+
+    <!-- Results Container -->
+    <div id="resultsContainer" class="space-y-8"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="rich-footer text-white py-5 px-4 mt-10 text-center">
+    <div class="max-w-7xl mx-auto space-y-1.5">
+      <p class="text-sm font-bold tracking-wider text-emerald-100">
+        All rights reserved
+      </p>
+      <p class="text-xs md:text-sm font-extrabold tracking-wide text-emerald-300 creator-badge">
+        Created by A.I.J.Thilakrathne +94777168825
+      </p>
+      <p class="text-xs md:text-sm font-bold tracking-wide text-emerald-200 creator-badge">
+        Livestock development imstructor
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRP84tFeQVUdQPPNKClWWMrsaUDq5dbDwVfj20Fsc1Velr7DDOV2rRX3fxBggu6_uByW8byTV4jsDCV/pub?output=csv";
+    const DRIVE_PHOTOS_API_URL = "https://script.google.com/macros/s/AKfycbyssRNU8t14bzJUGs6d7Pgg6UgT8QT9qRKULV40zTBZxi6ddzy-UHBg9g2dVTlFg0d7/exec";
+    const SUBFOLDER_NAME = "Melsiripura LDI_Images";
+
+    const ALLOWED_DETAIL_FIELDS = [
+      { label: "Completed at", keys: ["completed at", "completed_at", "completedat"] },
+      { label: "Date", keys: ["date", "ai date", "ai_date"] },
+      { label: "Cow Name", keys: ["cow name", "cow_name", "cowname"] },
+      { label: "No of calving", keys: ["no of calving", "no_of_calving", "noofcalving", "calving no"] },
+      { label: "Calving Date 1", keys: ["calving date 1", "calving_date_1", "calvingdate1", "calving date1"] },
+      { label: "Type of Ai", keys: ["type of ai", "type_of_ai", "typeofai", "ai type"] },
+      { label: "Semen code", keys: ["semen code", "semen_code", "semencode"] },
+      { label: "Reeipt no", keys: ["reeipt no", "receipt no", "receipt_no", "reeipt_no", "receiptno", "reeiptno"] },
+      { label: "Date tobe calved", keys: ["date tobe calved", "date to be calved", "date_tobe_calved", "date_to_be_calved", "datetobecalved"] }
+    ];
+
+    const IGNORED_VALUES = ["", "-", "n/a", "na", "null", "undefined"];
+
+    let aiRecords = [];
+    let drivePhotoMap = {};
+    let farmIdKey = "";
+    let farmerNameKey = "";
+    let contactNoKey = "";
+    let addressKey = "";
+    let photoKey = "";
+    let aiDateKey = "";
+
+    const farmIdInput = document.getElementById("farmIdInput");
+    const farmerNameInput = document.getElementById("farmerNameInput");
+    const farmIdDropdown = document.getElementById("farmIdDropdown");
+    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const recordCountBadge = document.getElementById("recordCountBadge");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const errorBox = document.getElementById("errorBox");
+    const liveTimeEl = document.getElementById("liveTime");
+    const liveDateEl = document.getElementById("liveDate");
+
+    function updateLiveClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const hh = String(hours).padStart(2, "0");
+
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+
+      if (liveTimeEl) liveTimeEl.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
+      if (liveDateEl) liveDateEl.textContent = `${dd}/${mm}/${yyyy}`;
+    }
+
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    function normalizeKey(str) {
+      return String(str || "").trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function extractDriveId(urlOrId) {
+      if (!urlOrId) return "";
+      const str = String(urlOrId).trim();
+      const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match1 && match1[1]) return match1[1];
+      const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match2 && match2[1]) return match2[1];
+      return "";
+    }
+
+    function toDirectDriveImageUrl(urlOrId) {
+      const id = extractDriveId(urlOrId);
+      if (id) {
+        return `https://lh3.googleusercontent.com/d/${id}=w400`;
+      }
+      return String(urlOrId || "").trim();
+    }
+
+    function detectColumnKeys(headers) {
+      farmIdKey =
+        headers.find(h => /^(farm\s*id|farm_id|ගොවිපල\s*අංකය)$/i.test(h.trim())) ||
+        headers.find(h => /farm\s*id|ගොවිපල/i.test(h)) ||
+        headers[0] || "";
+
+      farmerNameKey =
+        headers.find(h => /^(famer\s*name|farmer\s*name|farmer_name|ගොවිමහතාගේ\s*නම|නම)$/i.test(h.trim()) && h !== farmIdKey) ||
+        headers.find(h => /famer|farmer|name|නම/i.test(h) && h !== farmIdKey) ||
+        headers[1] || "";
+
+      contactNoKey =
+        headers.find(h => /contact\s*(no|number)|phone|mobile|tel|දුරකථන/i.test(h)) || "";
+
+      addressKey =
+        headers.find(h => /address|ලිපිනය/i.test(h)) || "";
+
+      photoKey =
+        headers.find(h => /^(photo|image|img|picture|ඡායාරූප|රූපය)$/i.test(h.trim())) ||
+        headers.find(h => /photo|image|picture|ඡායාරූප|රූප/i.test(h)) || "";
+
+      aiDateKey =
+        headers.find(h => /^(date|ai\s*date|දිනය)$/i.test(h.trim())) ||
+        headers.find(h => /date|දිනය/i.test(h)) || "";
+    }
+
+    function getFarmId(record) {
+      return String(record[farmIdKey] || "").trim();
+    }
+
+    function getFarmerName(record) {
+      return String(record[farmerNameKey] || "").trim();
+    }
+
+    function getContactNo(record) {
+      return String(contactNoKey ? (record[contactNoKey] || "") : "").trim();
+    }
+
+    function getAddress(record) {
+      return String(addressKey ? (record[addressKey] || "") : "").trim();
+    }
+
+    function getPhotoRaw(record) {
+      return String(photoKey ? (record[photoKey] || "") : "").trim();
+    }
+
+    function buildPhotoUrl(rawPhoto) {
+      if (!isMeaningfulValue(rawPhoto)) return "";
+      const val = rawPhoto.trim();
+
+      const normalizedVal = val.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
+      const fileNameOnly = normalizedVal.split("/").pop().trim();
+      const withSubfolderKey = `${SUBFOLDER_NAME.toLowerCase()}/${fileNameOnly}`;
+
+      if (drivePhotoMap[normalizedVal]) {
+        return toDirectDriveImageUrl(drivePhotoMap[normalizedVal]);
+      }
+      if (drivePhotoMap[withSubfolderKey]) {
+        return toDirectDriveImageUrl(drivePhotoMap[withSubfolderKey]);
+      }
+      if (drivePhotoMap[fileNameOnly]) {
+        return toDirectDriveImageUrl(drivePhotoMap[fileNameOnly]);
+      }
+
+      const matchedKey = Object.keys(drivePhotoMap).find(k => {
+        const lk = k.toLowerCase();
+        return lk === fileNameOnly || lk.endsWith("/" + fileNameOnly) || lk.includes(fileNameOnly);
+      });
+      if (matchedKey) {
+        return toDirectDriveImageUrl(drivePhotoMap[matchedKey]);
+      }
+
+      if (/^(https?:\/\/|data:image\/)/i.test(val)) {
+        return toDirectDriveImageUrl(val);
+      }
+
+      return "";
+    }
+
+    function getAiDate(record) {
+      return String(aiDateKey ? (record[aiDateKey] || "") : "").trim();
+    }
+
+    function isMeaningfulValue(val) {
+      if (val === null || val === undefined) return false;
+      const str = String(val).trim();
+      return !IGNORED_VALUES.includes(str.toLowerCase());
+    }
+
+    function getAllowedFieldsForRecord(rec) {
+      const normalizedEntries = {};
+      Object.entries(rec).forEach(([k, v]) => {
+        normalizedEntries[normalizeKey(k)] = v;
+      });
+
+      return ALLOWED_DETAIL_FIELDS
+        .map(fieldDef => {
+          for (const candidate of fieldDef.keys) {
+            const normCandidate = normalizeKey(candidate);
+            if (Object.prototype.hasOwnProperty.call(normalizedEntries, normCandidate)) {
+              const rawVal = normalizedEntries[normCandidate];
+              if (isMeaningfulValue(rawVal)) {
+                return {
+                  label: fieldDef.label,
+                  value: String(rawVal).trim()
+                };
+              }
+              return null;
+            }
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+
+    async function loadAllData() {
+      loadingIndicator.classList.remove("hidden");
+      errorBox.classList.add("hidden");
+      resultsContainer.innerHTML = "";
+
+      try {
+        if (DRIVE_PHOTOS_API_URL) {
+          try {
+            const photoRes = await fetch(`${DRIVE_PHOTOS_API_URL}?t=${Date.now()}`);
+            if (photoRes.ok) {
+              const rawMap = await photoRes.json();
+              drivePhotoMap = {};
+              Object.entries(rawMap || {}).forEach(([k, v]) => {
+                drivePhotoMap[String(k).trim().toLowerCase()] = v;
+              });
+            }
+          } catch (photoErr) {
+            console.warn("Drive photos list load error:", photoErr);
+          }
+        }
+
+        const cacheBusterUrl = `${DATA_URL}&t=${Date.now()}`;
+        const response = await fetch(cacheBusterUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const csvText = await response.text();
+        const parsed = parseCSVProperly(csvText);
+
+        if (parsed.headers.length > 0) {
+          detectColumnKeys(parsed.headers);
+        }
+
+        aiRecords = parsed.records.filter(row => getFarmId(row) !== "" || getFarmerName(row) !== "");
+
+        if (aiRecords.length === 0) {
+          errorBox.textContent = "Google Sheet එකෙහි දත්ත හමු නොවීය. කරුණාකර Sheet එක Publish කර ඇත්දැයි පරීක්ෂා කරන්න.";
+          errorBox.classList.remove("hidden");
+        } else {
+          // පිටුව පූරණය වූ වහාම සියලුම විස්තර පෙන්වයි
+          filterExactOrPartial(false);
+        }
+      } catch (err) {
+        console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
+        errorBox.innerHTML = `
+          Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය. <br>
+          <span class="text-sm font-normal">කරුණාකර අන්තර්ජාල සම්බන්ධතාව පරීක්ෂා කරන්න, නැතහොත් මෙම HTML ගොනුව Live Server / Hosting හරහා විවෘත කරන්න.</span>
+        `;
+        errorBox.classList.remove("hidden");
+      } finally {
+        loadingIndicator.classList.add("hidden");
+      }
+    }
+
+    function parseCSVProperly(csvText) {
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentVal += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentVal.trim());
+          currentVal = "";
+        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+          if (char === "\r" && nextChar === "\n") i++;
+          currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return { headers: [], records: [] };
+
+      const rawHeaders = rows[0];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      const records = rows.slice(1).map(row => {
+        const obj = {};
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row
