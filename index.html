@@ -310,6 +310,7 @@
           <input
             type="text"
             id="farmIdInput"
+            value=""
             placeholder="උදා: 6130 හෝ අංකය ටයිප් කරන්න..."
             oninput="onFarmIdInput()"
             onfocus="showFarmIdDropdown()"
@@ -327,6 +328,7 @@
           <input
             type="text"
             id="farmerNameInput"
+            value=""
             placeholder="නම ටයිප් කරන්න..."
             oninput="onFarmerNameInput()"
             onfocus="showFarmerNameDropdown()"
@@ -362,7 +364,7 @@
     <!-- Error Message Box -->
     <div id="errorBox" class="hidden bg-red-50 border-2 border-red-400 text-red-900 p-6 rounded-2xl mb-6 font-semibold shadow"></div>
 
-    <!-- Results Container -->
+    <!-- Results Container (ආරම්භයේ දී හිස්ව පවතී; drop-down එකෙන් තේරූ විට පමණක් විස්තර පෙන්වයි) -->
     <div id="resultsContainer" class="space-y-8"></div>
   </main>
 
@@ -591,6 +593,14 @@
         .filter(Boolean);
     }
 
+    // ආරම්භයේ දී සහ Reset කළ විට කිසිදු විස්තරයක් නොපෙන්වා හිස්ව තබන function එක
+    function showEmptyIdleState() {
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${aiRecords.length}`;
+      resultsContainer.innerHTML = "";
+    }
+
     async function fetchWithTimeout(url, timeoutMs = 12000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -659,7 +669,8 @@
           `;
           errorBox.classList.remove("hidden");
         } else {
-          filterExactOrPartial(false);
+          // ආරම්භයේ දී විස්තර නොපෙන්වා හිස්ව තබයි
+          showEmptyIdleState();
         }
       } catch (err) {
         console.error("දත්ත පූරණය කිරීමේ දෝෂයකි:", err);
@@ -812,214 +823,22 @@
       farmIdDropdown.classList.add("hidden");
     }
 
+    // Drop-down එකෙන් Farm ID එකක් select කළ විට පමණක් විස්තර පෙන්වයි
     function selectFarmId(id) {
       farmIdInput.value = id;
       const found = aiRecords.find(r => getFarmId(r) === id);
       if (found) farmerNameInput.value = getFarmerName(found);
       farmIdDropdown.classList.add("hidden");
-      filterExactOrPartial(true);
+      showSelectedRecords(id, "");
     }
 
+    // Drop-down එකෙන් Farmer Name එකක් select කළ විට පමණක් විස්තර පෙන්වයි
     function selectFarmerName(name) {
       farmerNameInput.value = name;
       const found = aiRecords.find(r => getFarmerName(r) === name);
       if (found) farmIdInput.value = getFarmId(found);
       farmerNameDropdown.classList.add("hidden");
-      filterExactOrPartial(true);
+      showSelectedRecords("", name);
     }
 
-    function onFarmIdInput() {
-      renderFarmIdOptions(farmIdInput.value);
-      filterExactOrPartial(false);
-    }
-
-    function onFarmerNameInput() {
-      renderFarmerNameOptions(farmerNameInput.value);
-      filterExactOrPartial(false);
-    }
-
-    function resetSearch() {
-      farmIdInput.value = "";
-      farmerNameInput.value = "";
-      farmIdDropdown.classList.add("hidden");
-      farmerNameDropdown.classList.add("hidden");
-      filterExactOrPartial(false);
-    }
-
-    function filterExactOrPartial(isExactSelection = false) {
-      const idQuery = farmIdInput.value.trim().toLowerCase();
-      const nameQuery = farmerNameInput.value.trim().toLowerCase();
-
-      if (!idQuery && !nameQuery) {
-        renderGroupedFarms(aiRecords);
-        return;
-      }
-
-      const filtered = aiRecords.filter(item => {
-        const itemId = getFarmId(item).toLowerCase();
-        const itemName = getFarmerName(item).toLowerCase();
-
-        if (isExactSelection) {
-          return (idQuery && itemId === idQuery) || (nameQuery && itemName === nameQuery);
-        }
-        const matchesId = !idQuery || itemId.includes(idQuery);
-        const matchesName = !nameQuery || itemName.includes(nameQuery);
-        return matchesId && matchesName;
-      });
-
-      renderGroupedFarms(filtered);
-    }
-
-    function renderGroupedFarms(data) {
-      recordCountBadge.textContent = `පෙන්වන මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
-
-      if (!data.length) {
-        resultsContainer.innerHTML = `
-          <div class="bg-white/95 p-8 rounded-2xl text-center text-emerald-950 font-bold shadow border border-emerald-300">
-            සෙවුමට ගැලපෙන කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
-          </div>
-        `;
-        return;
-      }
-
-      const grouped = {};
-      data.forEach(item => {
-        const fId = getFarmId(item);
-        const fName = getFarmerName(item);
-        const key = `${fId}__${fName}`;
-        if (!grouped[key]) {
-          grouped[key] = {
-            farmId: fId,
-            farmerName: fName,
-            address: "",
-            contactNo: "",
-            photoUrl: "",
-            records: []
-          };
-        }
-        if (!grouped[key].address && isMeaningfulValue(getAddress(item))) {
-          grouped[key].address = getAddress(item);
-        }
-        if (!grouped[key].contactNo && isMeaningfulValue(getContactNo(item))) {
-          grouped[key].contactNo = getContactNo(item);
-        }
-        if (!grouped[key].photoUrl && isMeaningfulValue(getPhotoRaw(item))) {
-          grouped[key].photoUrl = buildPhotoUrl(getPhotoRaw(item));
-        }
-        grouped[key].records.push(item);
-      });
-
-      const sortedGroups = Object.values(grouped).sort((a, b) =>
-        String(b.farmId || "").localeCompare(String(a.farmId || ""), undefined, {
-          numeric: true,
-          sensitivity: "base"
-        })
-      );
-
-      resultsContainer.innerHTML = sortedGroups.map(group => {
-        const sortedRecords = group.records.sort((a, b) => getAiDate(b).localeCompare(getAiDate(a)));
-
-        const recordsCardsHtml = sortedRecords.map((rec, index) => {
-          const allowedFields = getAllowedFieldsForRecord(rec);
-          const aiDate = getAiDate(rec) || `වාර්තාව #${index + 1}`;
-          const delayMs = Math.min(index * 90, 630);
-
-          const fieldsHtml = allowedFields.map(field => `
-            <div class="detail-row-item flex justify-between items-start py-2 border-b border-gray-100 last:border-b-0 text-sm gap-3">
-              <span class="font-bold text-emerald-900 shrink-0">${field.label}:</span>
-              <span class="text-gray-800 text-right font-semibold break-words">${field.value}</span>
-            </div>
-          `).join("");
-
-          return `
-            <div class="white-detail-card rounded-2xl p-5 flex flex-col justify-between" style="animation-delay: ${delayMs}ms;">
-              <div>
-                <div class="flex items-center justify-between mb-3 pb-2.5 border-b-2 border-emerald-100">
-                  <span class="text-xs font-extrabold text-emerald-950 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
-                    ${aiDate}
-                  </span>
-                  <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg">
-                    #${index + 1}
-                  </span>
-                </div>
-                <div class="divide-y divide-gray-100">
-                  ${fieldsHtml || `<div class="text-xs text-gray-400 py-3 text-center">පෙන්වීමට තොරතුරු නොමැත</div>`}
-                </div>
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        const photoHtml = group.photoUrl ? `
-          <div class="shrink-0">
-            <img
-              src="${escapeJsString(group.photoUrl)}"
-              alt="${escapeJsString(group.farmerName || "Photo")}"
-              referrerpolicy="no-referrer"
-              onerror="this.style.display='none'"
-              class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-amber-300/80 shadow-lg"
-            >
-          </div>
-        ` : "";
-
-        return `
-          <div class="bg-emerald-50/60 rounded-3xl shadow-xl border-2 border-emerald-300 overflow-hidden">
-            <div class="farm-profile-banner text-white p-5 md:p-6">
-              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                  ${photoHtml}
-                  <div class="space-y-2">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="bg-amber-400 text-emerald-950 text-xs md:text-sm font-black px-3.5 py-1 rounded-full shadow">
-                        Farm ID: ${group.farmId || "-"}
-                      </span>
-                      <span class="farm-info-pill text-emerald-100 text-xs font-bold px-3 py-1 rounded-full">
-                        වාර්තා ${sortedRecords.length}
-                      </span>
-                    </div>
-
-                    <h3 class="text-xl md:text-2xl font-black text-white tracking-wide">
-                      <span class="text-amber-300 text-sm md:text-base font-bold mr-1.5">Farmer Name:</span>
-                      ${group.farmerName || "නම සඳහන් කර නොමැත"}
-                    </h3>
-
-                    <div class="flex flex-wrap gap-2.5 pt-1 text-xs md:text-sm">
-                      <div class="farm-info-pill px-3.5 py-1.5 rounded-xl text-emerald-50">
-                        <span class="font-extrabold text-amber-200">ලිපිනය:</span>
-                        <span class="font-medium ml-1">${group.address || "-"}</span>
-                      </div>
-                      <div class="farm-info-pill px-3.5 py-1.5 rounded-xl text-emerald-50">
-                        <span class="font-extrabold text-amber-200">දුරකථන:</span>
-                        <span class="font-medium ml-1">${group.contactNo || "-"}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="p-5 md:p-6 bg-white/75 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              ${recordsCardsHtml}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    document.addEventListener("click", (e) => {
-      if (!farmIdInput.contains(e.target) && !farmIdDropdown.contains(e.target)) {
-        farmIdDropdown.classList.add("hidden");
-      }
-      if (!farmerNameInput.contains(e.target) && !farmerNameDropdown.contains(e.target)) {
-        farmerNameDropdown.classList.add("hidden");
-      }
-    });
-
-    if (document.readyState === "loading") {
-      window.addEventListener("DOMContentLoaded", loadAllData);
-    } else {
-      loadAllData();
-    }
-  </script>
-</body>
-</html>
+    //
