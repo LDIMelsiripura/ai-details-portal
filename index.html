@@ -102,7 +102,7 @@
     .dropdown-menu {
       max-height: 280px;
       overflow-y: auto;
-      z-index: 999;
+      z-index: 9999;
     }
 
     .dropdown-item:hover {
@@ -224,7 +224,8 @@
             value=""
             placeholder="මෙතන ක්ලික් කර Farm ID තෝරන්න හෝ ටයිප් කරන්න..."
             oninput="onFarmIdInput()"
-            onfocus="showFarmIdDropdown()"
+            onfocus="openFarmIdDropdown()"
+            onclick="openFarmIdDropdown()"
             class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
             autocomplete="off"
           >
@@ -242,7 +243,8 @@
             value=""
             placeholder="මෙතන ක්ලික් කර නම තෝරන්න හෝ ටයිප් කරන්න..."
             oninput="onFarmerNameInput()"
-            onfocus="showFarmerNameDropdown()"
+            onfocus="openFarmerNameDropdown()"
+            onclick="openFarmerNameDropdown()"
             class="w-full p-4 border-2 border-emerald-400/70 rounded-2xl focus:outline-none focus:ring-4 focus:ring-emerald-600/30 focus:border-emerald-700 bg-white font-medium shadow-sm"
             autocomplete="off"
           >
@@ -298,6 +300,7 @@
     let allHeaders = [];
     let aiRecords = [];
     let drivePhotoMap = {};
+    let isDataLoaded = false;
     let farmIdKey = "";
     let farmerNameKey = "";
     let contactNoKey = "";
@@ -305,4 +308,627 @@
     let photoKey = "";
     let aiDateKey = "";
 
-    const farmIdInput = document.getElementBy
+    const farmIdInput = document.getElementById("farmIdInput");
+    const farmerNameInput = document.getElementById("farmerNameInput");
+    const farmIdDropdown = document.getElementById("farmIdDropdown");
+    const farmerNameDropdown = document.getElementById("farmerNameDropdown");
+    const resultsContainer = document.getElementById("resultsContainer");
+    const recordCountBadge = document.getElementById("recordCountBadge");
+    const loadingIndicator = document.getElementById("loadingIndicator");
+    const loadingStatusText = document.getElementById("loadingStatusText");
+    const errorBox = document.getElementById("errorBox");
+    const liveTimeEl = document.getElementById("liveTime");
+    const liveDateEl = document.getElementById("liveDate");
+
+    function setLoadingVisible(isVisible, text = "Google Sheet වෙතින් දත්ත පූරණය වෙමින් පවතී...") {
+      if (!loadingIndicator) return;
+      if (isVisible) {
+        loadingIndicator.classList.remove("hidden");
+        loadingIndicator.classList.add("flex");
+        if (loadingStatusText) loadingStatusText.textContent = text;
+      } else {
+        loadingIndicator.classList.add("hidden");
+        loadingIndicator.classList.remove("flex");
+      }
+    }
+
+    function updateLiveClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const hh = String(hours).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const yyyy = now.getFullYear();
+
+      if (liveTimeEl) liveTimeEl.textContent = `${hh}:${minutes}:${seconds} ${ampm}`;
+      if (liveDateEl) liveDateEl.textContent = `${dd}/${mm}/${yyyy}`;
+    }
+
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    function extractDriveId(urlOrId) {
+      if (!urlOrId) return "";
+      const str = String(urlOrId).trim();
+      const match1 = str.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (match1 && match1[1]) return match1[1];
+      const match2 = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match2 && match2[1]) return match2[1];
+      return "";
+    }
+
+    function toDirectDriveImageUrl(urlOrId) {
+      const id = extractDriveId(urlOrId);
+      if (id) return `https://lh3.googleusercontent.com/d/${id}=w400`;
+      return String(urlOrId || "").trim();
+    }
+
+    function detectColumnKeys(headers) {
+      allHeaders = headers;
+
+      farmIdKey =
+        headers.find(h => /^(farm\s*id|farm_id|ගොවිපල\s*අංකය)$/i.test(h.trim())) ||
+        headers.find(h => /farm\s*id|ගොවිපල/i.test(h)) ||
+        headers[0] || "";
+
+      farmerNameKey =
+        headers.find(h => /^(famer\s*name|farmer\s*name|farmer_name|ගොවිමහතාගේ\s*නම|නම)$/i.test(h.trim()) && h !== farmIdKey) ||
+        headers.find(h => /famer|farmer|name|නම/i.test(h) && h !== farmIdKey) ||
+        headers[1] || "";
+
+      contactNoKey =
+        headers.find(h => /contact\s*(no|number)|phone|mobile|tel|දුරකථන/i.test(h)) || "";
+
+      addressKey =
+        headers.find(h => /address|ලිපිනය/i.test(h)) || "";
+
+      photoKey =
+        headers.find(h => /^(photo|image|img|picture|ඡායාරූප|රූපය)$/i.test(h.trim())) ||
+        headers.find(h => /photo|image|picture|ඡායාරූප|රූප/i.test(h)) || "";
+
+      aiDateKey =
+        headers.find(h => /^(date|ai\s*date|දිනය)$/i.test(h.trim())) ||
+        headers.find(h => /date|දිනය/i.test(h)) || "";
+    }
+
+    function getFarmId(record) {
+      return String(record[farmIdKey] || "").trim();
+    }
+
+    function getFarmerName(record) {
+      return String(record[farmerNameKey] || "").trim();
+    }
+
+    function getContactNo(record) {
+      return String(contactNoKey ? (record[contactNoKey] || "") : "").trim();
+    }
+
+    function getAddress(record) {
+      return String(addressKey ? (record[addressKey] || "") : "").trim();
+    }
+
+    function getPhotoRaw(record) {
+      return String(photoKey ? (record[photoKey] || "") : "").trim();
+    }
+
+    function buildPhotoUrl(rawPhoto) {
+      if (!isMeaningfulValue(rawPhoto)) return "";
+      const val = rawPhoto.trim();
+
+      const normalizedVal = val.replace(/\\/g, "/").replace(/^\/+/, "").toLowerCase();
+      const fileNameOnly = normalizedVal.split("/").pop().trim();
+      const withSubfolderKey = `${SUBFOLDER_NAME.toLowerCase()}/${fileNameOnly}`;
+
+      if (drivePhotoMap[normalizedVal]) return toDirectDriveImageUrl(drivePhotoMap[normalizedVal]);
+      if (drivePhotoMap[withSubfolderKey]) return toDirectDriveImageUrl(drivePhotoMap[withSubfolderKey]);
+      if (drivePhotoMap[fileNameOnly]) return toDirectDriveImageUrl(drivePhotoMap[fileNameOnly]);
+
+      const matchedKey = Object.keys(drivePhotoMap).find(k => {
+        const lk = k.toLowerCase();
+        return lk === fileNameOnly || lk.endsWith("/" + fileNameOnly) || lk.includes(fileNameOnly);
+      });
+      if (matchedKey) return toDirectDriveImageUrl(drivePhotoMap[matchedKey]);
+
+      if (/^(https?:\/\/|data:image\/)/i.test(val)) return toDirectDriveImageUrl(val);
+      return "";
+    }
+
+    function getAiDate(record) {
+      return String(aiDateKey ? (record[aiDateKey] || "") : "").trim();
+    }
+
+    function isMeaningfulValue(val) {
+      if (val === null || val === undefined) return false;
+      const str = String(val).trim();
+      return !IGNORED_VALUES.includes(str.toLowerCase());
+    }
+
+    function getRecordDetailFields(rec) {
+      const bannerKeys = new Set([farmIdKey, farmerNameKey, contactNoKey, addressKey, photoKey].filter(Boolean));
+      const fields = [];
+
+      allHeaders.forEach(header => {
+        if (bannerKeys.has(header)) return;
+        const val = rec[header];
+        if (isMeaningfulValue(val)) {
+          fields.push({
+            label: header,
+            value: String(val).trim()
+          });
+        }
+      });
+
+      return fields;
+    }
+
+    function showEmptyIdleState() {
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      recordCountBadge.textContent = `මුළු කෘත්‍රිම සිංචන වාර්තා ගණන: ${aiRecords.length}`;
+      resultsContainer.innerHTML = "";
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 12000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { signal: controller.signal, cache: "no-store" });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    async function loadDrivePhotosSafely() {
+      if (!DRIVE_PHOTOS_API_URL) return;
+      try {
+        const photoRes = await fetchWithTimeout(`${DRIVE_PHOTOS_API_URL}?t=${Date.now()}`, 8000);
+        if (photoRes.ok) {
+          const rawMap = await photoRes.json();
+          const nextMap = {};
+          Object.entries(rawMap || {}).forEach(([k, v]) => {
+            nextMap[String(k).trim().toLowerCase()] = v;
+          });
+          drivePhotoMap = nextMap;
+        }
+      } catch (photoErr) {
+        console.warn("Drive photos list skipped:", photoErr);
+      }
+    }
+
+    async function loadAllData() {
+      isDataLoaded = false;
+      setLoadingVisible(true, "Google Sheet වෙතින් දත්ත පූරණය වෙමින් පවතී...");
+      errorBox.classList.add("hidden");
+      resultsContainer.innerHTML = "";
+
+      try {
+        await loadDrivePhotosSafely();
+
+        const sep = DATA_URL.includes("?") ? "&" : "?";
+        const cacheBusterUrl = `${DATA_URL}${sep}t=${Date.now()}`;
+        const response = await fetchWithTimeout(cacheBusterUrl, 15000);
+
+        if (!response.ok) {
+          throw new Error(`HTTP Status ${response.status}`);
+        }
+
+        const csvText = await response.text();
+        if (!csvText || !csvText.trim()) {
+          throw new Error("CSV response එක හිස්ය.");
+        }
+
+        if (/^\s*<!doctype html>|<html[\s>]/i.test(csvText)) {
+          throw new Error("Google Sheet එක 'Publish to the web' (CSV) ලෙස ප්‍රකාශයට පත් කර නොමැත.");
+        }
+
+        const parsed = parseCSVProperly(csvText);
+        if (parsed.headers.length > 0) {
+          detectColumnKeys(parsed.headers);
+        }
+
+        aiRecords = parsed.records.filter(row => getFarmId(row) !== "" || getFarmerName(row) !== "");
+        isDataLoaded = true;
+
+        if (aiRecords.length === 0) {
+          errorBox.innerHTML = "Google Sheet එකෙහි දත්ත හමු නොවීය.";
+          errorBox.classList.remove("hidden");
+        } else {
+          showEmptyIdleState();
+        }
+      } catch (err) {
+        console.error("Load error:", err);
+        const reason = err && err.name === "AbortError"
+          ? "සම්බන්ධතාව ප්‍රමාද විය (Timeout)."
+          : (err && err.message ? err.message : "Unknown error");
+
+        errorBox.innerHTML = `
+          Google Sheet වෙතින් දත්ත ලබාගැනීමට නොහැකි විය.<br>
+          <span class="text-sm font-bold text-red-700 block mt-1">දෝෂ විස්තරය: ${reason}</span>
+        `;
+        errorBox.classList.remove("hidden");
+      } finally {
+        setLoadingVisible(false);
+      }
+    }
+
+    function parseCSVProperly(csvText) {
+      const rows = [];
+      let currentRow = [];
+      let currentVal = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < csvText.length; i++) {
+        const char = csvText[i];
+        const nextChar = csvText[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            currentVal += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === "," && !insideQuotes) {
+          currentRow.push(currentVal.trim());
+          currentVal = "";
+        } else if ((char === "\r" || char === "\n") && !insideQuotes) {
+          if (char === "\r" && nextChar === "\n") i++;
+          currentRow.push(currentVal.trim());
+          if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+          currentRow = [];
+          currentVal = "";
+        } else {
+          currentVal += char;
+        }
+      }
+
+      if (currentVal !== "" || currentRow.length > 0) {
+        currentRow.push(currentVal.trim());
+        if (currentRow.some(cell => cell !== "")) rows.push(currentRow);
+      }
+
+      if (rows.length < 2) return { headers: [], records: [] };
+
+      const rawHeaders = rows[0];
+      const validIndices = [];
+      const headers = [];
+
+      rawHeaders.forEach((h, idx) => {
+        const cleanH = h.replace(/^\uFEFF/, "").trim();
+        if (cleanH !== "") {
+          validIndices.push(idx);
+          headers.push(cleanH);
+        }
+      });
+
+      const records = rows.slice(1).map(row => {
+        const obj = {};
+        validIndices.forEach((colIdx, i) => {
+          obj[headers[i]] = row[colIdx] !== undefined ? row[colIdx] : "";
+        });
+        return obj;
+      });
+
+      return { headers, records };
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function renderFarmIdOptions(filterText = "") {
+      if (!isDataLoaded) {
+        farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-emerald-800 font-semibold">දත්ත පූරණය වෙමින් පවතී...</div>`;
+        farmIdDropdown.classList.remove("hidden");
+        return;
+      }
+
+      const query = String(filterText || "").trim().toLowerCase();
+      const uniqueIds = [...new Set(aiRecords.map(getFarmId))]
+        .filter(Boolean)
+        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" }));
+      const matches = uniqueIds.filter(id => id.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmIdDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන ගොවිපල අංකයක් හමු නොවීය</div>`;
+      } else {
+        farmIdDropdown.innerHTML = matches.map(id => {
+          const farmEntries = aiRecords.filter(r => getFarmId(r) === id);
+          const name = farmEntries[0] ? getFarmerName(farmEntries[0]) : "";
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 data-id="${escapeHtml(id)}">
+              <div>
+                <span class="font-bold text-emerald-950">${escapeHtml(id)}</span>
+                <span class="text-xs text-emerald-700 ml-2">${name ? `(${escapeHtml(name)})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmIdDropdown.classList.remove("hidden");
+    }
+
+    function renderFarmerNameOptions(filterText = "") {
+      if (!isDataLoaded) {
+        farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-emerald-800 font-semibold">දත්ත පූරණය වෙමින් පවතී...</div>`;
+        farmerNameDropdown.classList.remove("hidden");
+        return;
+      }
+
+      const query = String(filterText || "").trim().toLowerCase();
+      const uniqueNames = [...new Set(aiRecords.map(getFarmerName))].filter(Boolean);
+      const matches = uniqueNames.filter(name => name.toLowerCase().includes(query));
+
+      if (matches.length === 0) {
+        farmerNameDropdown.innerHTML = `<div class="p-3 text-sm text-gray-500">ගැලපෙන නමක් හමු නොවීය</div>`;
+      } else {
+        farmerNameDropdown.innerHTML = matches.map(name => {
+          const farmEntries = aiRecords.filter(r => getFarmerName(r) === name);
+          const id = farmEntries[0] ? getFarmId(farmEntries[0]) : "";
+          return `
+            <div class="dropdown-item px-4 py-3 cursor-pointer border-b border-emerald-100 last:border-b-0 flex justify-between items-center gap-2"
+                 data-name="${escapeHtml(name)}">
+              <div>
+                <span class="font-bold text-emerald-950">${escapeHtml(name)}</span>
+                <span class="text-xs text-emerald-700 ml-2">${id ? `(ID: ${escapeHtml(id)})` : ""}</span>
+              </div>
+              <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full whitespace-nowrap">
+                වාර්තා ${farmEntries.length}
+              </span>
+            </div>
+          `;
+        }).join("");
+      }
+      farmerNameDropdown.classList.remove("hidden");
+    }
+
+    function openFarmIdDropdown() {
+      renderFarmIdOptions(farmIdInput.value);
+      farmerNameDropdown.classList.add("hidden");
+    }
+
+    function openFarmerNameDropdown() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      farmIdDropdown.classList.add("hidden");
+    }
+
+    function selectFarmId(id) {
+      const cleanId = String(id || "").trim();
+      farmIdInput.value = cleanId;
+      const found = aiRecords.find(r => getFarmId(r) === cleanId);
+      farmerNameInput.value = found ? getFarmerName(found) : "";
+      farmIdDropdown.classList.add("hidden");
+      farmerNameDropdown.classList.add("hidden");
+      showSelectedRecords(cleanId, "");
+    }
+
+    function selectFarmerName(name) {
+      const cleanName = String(name || "").trim();
+      farmerNameInput.value = cleanName;
+      const found = aiRecords.find(r => getFarmerName(r) === cleanName);
+      farmIdInput.value = found ? getFarmId(found) : "";
+      farmerNameDropdown.classList.add("hidden");
+      farmIdDropdown.classList.add("hidden");
+      showSelectedRecords("", cleanName);
+    }
+
+    function onFarmIdInput() {
+      renderFarmIdOptions(farmIdInput.value);
+      showEmptyIdleState();
+      farmIdDropdown.classList.remove("hidden");
+    }
+
+    function onFarmerNameInput() {
+      renderFarmerNameOptions(farmerNameInput.value);
+      showEmptyIdleState();
+      farmerNameDropdown.classList.remove("hidden");
+    }
+
+    function resetSearch() {
+      farmIdInput.value = "";
+      farmerNameInput.value = "";
+      showEmptyIdleState();
+    }
+
+    function showSelectedRecords(selectedId = "", selectedName = "") {
+      const idQuery = String(selectedId || "").trim().toLowerCase();
+      const nameQuery = String(selectedName || "").trim().toLowerCase();
+
+      if (!idQuery && !nameQuery) {
+        showEmptyIdleState();
+        return;
+      }
+
+      const filtered = aiRecords.filter(item => {
+        const itemId = getFarmId(item).toLowerCase();
+        const itemName = getFarmerName(item).toLowerCase();
+        if (idQuery) return itemId === idQuery;
+        if (nameQuery) return itemName === nameQuery;
+        return false;
+      });
+
+      renderGroupedFarms(filtered);
+    }
+
+    function renderGroupedFarms(data) {
+      recordCountBadge.textContent = `පෙන්වන කෘත්‍රිම සිංචන වාර්තා ගණන: ${data.length} / ${aiRecords.length}`;
+
+      if (!data.length) {
+        resultsContainer.innerHTML = `
+          <div class="bg-white/95 p-8 rounded-2xl text-center text-emerald-950 font-bold shadow border border-emerald-300">
+            තෝරාගත් ගොවිපලට අදාළ කෘත්‍රිම සිංචන වාර්තා හමු නොවීය.
+          </div>
+        `;
+        return;
+      }
+
+      const grouped = {};
+      data.forEach(item => {
+        const fId = getFarmId(item);
+        const fName = getFarmerName(item);
+        const key = `${fId}__${fName}`;
+        if (!grouped[key]) {
+          grouped[key] = {
+            farmId: fId,
+            farmerName: fName,
+            address: "",
+            contactNo: "",
+            photoUrl: "",
+            records: []
+          };
+        }
+        if (!grouped[key].address && isMeaningfulValue(getAddress(item))) {
+          grouped[key].address = getAddress(item);
+        }
+        if (!grouped[key].contactNo && isMeaningfulValue(getContactNo(item))) {
+          grouped[key].contactNo = getContactNo(item);
+        }
+        if (!grouped[key].photoUrl && isMeaningfulValue(getPhotoRaw(item))) {
+          grouped[key].photoUrl = buildPhotoUrl(getPhotoRaw(item));
+        }
+        grouped[key].records.push(item);
+      });
+
+      const sortedGroups = Object.values(grouped).sort((a, b) =>
+        String(b.farmId || "").localeCompare(String(a.farmId || ""), undefined, {
+          numeric: true,
+          sensitivity: "base"
+        })
+      );
+
+      resultsContainer.innerHTML = sortedGroups.map(group => {
+        const sortedRecords = group.records.sort((a, b) => getAiDate(b).localeCompare(getAiDate(a)));
+
+        const recordsCardsHtml = sortedRecords.map((rec, index) => {
+          const detailFields = getRecordDetailFields(rec);
+          const aiDate = getAiDate(rec) || `වාර්තාව #${index + 1}`;
+          const delayMs = Math.min(index * 70, 500);
+
+          const fieldsHtml = detailFields.map(field => `
+            <div class="detail-row-item flex justify-between items-start py-2 px-1 border-b border-gray-100 last:border-b-0 text-sm gap-3">
+              <span class="font-bold text-emerald-900 shrink-0">${escapeHtml(field.label)}:</span>
+              <span class="text-gray-800 text-right font-semibold break-words">${escapeHtml(field.value)}</span>
+            </div>
+          `).join("");
+
+          return `
+            <div class="white-detail-card rounded-2xl p-5 flex flex-col justify-between" style="animation-delay: ${delayMs}ms;">
+              <div>
+                <div class="flex items-center justify-between mb-3 pb-2.5 border-b-2 border-emerald-100">
+                  <span class="text-xs font-extrabold text-emerald-950 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
+                    ${escapeHtml(aiDate)}
+                  </span>
+                  <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-lg">
+                    #${index + 1}
+                  </span>
+                </div>
+                <div class="divide-y divide-gray-100">
+                  ${fieldsHtml || `<div class="text-xs text-gray-400 py-3 text-center">පෙන්වීමට තොරතුරු නොමැත</div>`}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const photoHtml = group.photoUrl ? `
+          <div class="shrink-0">
+            <img
+              src="${escapeHtml(group.photoUrl)}"
+              alt="${escapeHtml(group.farmerName || "Photo")}"
+              referrerpolicy="no-referrer"
+              onerror="this.style.display='none'"
+              class="w-24 h-24 md:w-28 md:h-28 object-cover rounded-2xl border-2 border-amber-300/80 shadow-lg"
+            >
+          </div>
+        ` : "";
+
+        return `
+          <div class="bg-emerald-50/60 rounded-3xl shadow-xl border-2 border-emerald-300 overflow-hidden">
+            <div class="farm-profile-banner text-white p-5 md:p-6">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                  ${photoHtml}
+                  <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="bg-amber-400 text-emerald-950 text-xs md:text-sm font-black px-3.5 py-1 rounded-full shadow">
+                        Farm ID: ${escapeHtml(group.farmId || "-")}
+                      </span>
+                      <span class="farm-info-pill text-emerald-100 text-xs font-bold px-3 py-1 rounded-full">
+                        වාර්තා ${sortedRecords.length}
+                      </span>
+                    </div>
+
+                    <h3 class="text-xl md:text-2xl font-black text-white tracking-wide">
+                      <span class="text-amber-300 text-sm md:text-base font-bold mr-1.5">Farmer Name:</span>
+                      ${escapeHtml(group.farmerName || "නම සඳහන් කර නොමැත")}
+                    </h3>
+
+                    <div class="flex flex-wrap gap-2.5 pt-1 text-xs md:text-sm">
+                      <div class="farm-info-pill px-3.5 py-1.5 rounded-xl text-emerald-50">
+                        <span class="font-extrabold text-amber-200">ලිපිනය:</span>
+                        <span class="font-medium ml-1">${escapeHtml(group.address || "-")}</span>
+                      </div>
+                      <div class="farm-info-pill px-3.5 py-1.5 rounded-xl text-emerald-50">
+                        <span class="font-extrabold text-amber-200">දුරකථන:</span>
+                        <span class="font-medium ml-1">${escapeHtml(group.contactNo || "-")}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-5 md:p-6 bg-white/75 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              ${recordsCardsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // mousedown භාවිතයෙන් blur වීමට පෙර item එක තෝරා ගැනීම
+    farmIdDropdown.addEventListener("mousedown", (e) => {
+      const item = e.target.closest(".dropdown-item");
+      if (!item) return;
+      e.preventDefault();
+      selectFarmId(item.getAttribute("data-id") || "");
+    });
+
+    farmerNameDropdown.addEventListener("mousedown", (e) => {
+      const item = e.target.closest(".dropdown-item");
+      if (!item) return;
+      e.preventDefault();
+      selectFarmerName(item.getAttribute("data-name") || "");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!farmIdInput.contains(e.target) && !farmIdDropdown.contains(e.target)) {
+        farmIdDropdown.classList.add("hidden");
+      }
+      if (!farmerNameInput.contains(e.target) && !farmerNameDropdown.contains(e.target)) {
+        farmerNameDropdown.classList.add("hidden");
+      }
+    });
+
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", loadAllData);
+    } else {
+      loadAllData();
+    }
+  </script>
+</body>
+</html>
